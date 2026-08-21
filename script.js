@@ -1,977 +1,1366 @@
-/* ========================================
-   SkillCore — Interactive Learning Game
-   Final JavaScript
-======================================== */
 "use strict";
+
 /* ========================================
-   DATA
+   DrawFlow
+   Interactive Drawing Application
 ======================================== */
-const questions = {
-    javascript: [
-        {
-            question: "Which keyword declares a variable that cannot be reassigned?",
-            answers: ["let", "var", "const", "static"],
-            correct: 2
-        },
-        {
-            question: "Which method converts JSON text into a JavaScript object?",
-            answers: [
-                "JSON.parse()",
-                "JSON.stringify()",
-                "JSON.convert()",
-                "JSON.object()"
-            ],
-            correct: 0
-        },
-        {
-            question: "Which symbol is used for strict equality?",
-            answers: ["=", "==", "===", "!="],
-            correct: 2
-        }
-    ],
-    html: [
-        {
-            question: "Which HTML element creates a hyperlink?",
-            answers: ["<link>", "<a>", "<href>", "<url>"],
-            correct: 1
-        },
-        {
-            question: "Which element is used for the largest heading?",
-            answers: ["<heading>", "<h6>", "<head>", "<h1>"],
-            correct: 3
-        }
-    ],
-    css: [
-        {
-            question: "Which property changes text color?",
-            answers: [
-                "font-color",
-                "text-color",
-                "color",
-                "foreground"
-            ],
-            correct: 2
-        },
-        {
-            question: "Which CSS property creates rounded corners?",
-            answers: [
-                "corner-radius",
-                "border-radius",
-                "radius",
-                "round-border"
-            ],
-            correct: 1
-        }
-    ],
-    python: [
-        {
-            question: "Which keyword defines a function in Python?",
-            answers: [
-                "function",
-                "func",
-                "def",
-                "define"
-            ],
-            correct: 2
-        },
-        {
-            question: "Which symbol starts a comment in Python?",
-            answers: [
-                "//",
-                "<!--",
-                "#",
-                "/*"
-            ],
-            correct: 2
-        }
-    ]
-};
+
+
 /* ========================================
-   GAME STATE
+   DOM
 ======================================== */
-let currentSkill = null;
-let currentQuestion = 0;
-let score = 0;
-let answered = false;
-let xp =
-    Number(localStorage.getItem("skillcore-xp")) || 0;
-let level =
-    Number(localStorage.getItem("skillcore-level")) || 1;
-let streak =
-    Number(localStorage.getItem("skillcore-streak")) || 0;
+
+const canvas =
+    document.querySelector("#drawingCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+const colorPicker =
+    document.querySelector("#colorPicker");
+
+const brushSize =
+    document.querySelector("#brushSize");
+
+const sizeValue =
+    document.querySelector("#sizeValue");
+
+const toolButtons =
+    document.querySelectorAll(".tool-button[data-tool]");
+
+const undoButton =
+    document.querySelector("#undoButton");
+
+const redoButton =
+    document.querySelector("#redoButton");
+
+const clearButton =
+    document.querySelector("#clearButton");
+
+const saveButton =
+    document.querySelector("#saveButton");
+
+const downloadButton =
+    document.querySelector("#downloadButton");
+
+const soundButton =
+    document.querySelector("#soundButton");
+
+const themeButton =
+    document.querySelector("#themeButton");
+
+const toast =
+    document.querySelector("#toast");
+
+const saveStatus =
+    document.querySelector("#saveStatus");
+
+
 /* ========================================
-   DOM ELEMENTS
+   STATE
 ======================================== */
-const quizPanel =
-    document.querySelector(".quiz-panel");
-const resultPanel =
-    document.querySelector(".result-panel");
-const questionElement =
-    document.querySelector(".question");
-const answersElement =
-    document.querySelector(".answers");
-const quizProgress =
-    document.querySelector(".quiz-progress");
-const quizScore =
-    document.querySelector(".quiz-score");
-const xpProgress =
-    document.querySelector(".xp-progress");
-const playerLevel =
-    document.querySelector(".player-level");
-const streakNumber =
-    document.querySelector(".streak-number");
-const resultTitle =
-    document.querySelector(".result-panel h2");
-const resultText =
-    document.querySelector(".result-panel p");
-const resultIcon =
-    document.querySelector(".result-icon");
+
+let currentTool = "brush";
+
+let isDrawing = false;
+
+let lastX = 0;
+
+let lastY = 0;
+
+let soundEnabled =
+    localStorage.getItem("drawflow-sound") !== "off";
+
+let isLight =
+    localStorage.getItem("drawflow-theme") === "light";
+
+
+let history = [];
+
+let historyIndex = -1;
+
+let saveTimer = null;
+
+
 /* ========================================
    AUDIO
 ======================================== */
+
 let audioContext = null;
+
+
 function getAudioContext() {
+
     if (!audioContext) {
-        const AudioContext =
+
+        const Audio =
             window.AudioContext ||
             window.webkitAudioContext;
-        if (!AudioContext) {
+
+        if (!Audio) {
             return null;
         }
+
         audioContext =
-            new AudioContext();
+            new Audio();
     }
+
     return audioContext;
 }
+
+
 function playSound(type) {
+
+    if (!soundEnabled) {
+        return;
+    }
+
+
     try {
-        const context =
+
+        const audio =
             getAudioContext();
-        if (!context) {
+
+        if (!audio) {
             return;
         }
-        if (context.state === "suspended") {
-            context.resume();
-        }
+
+
         const oscillator =
-            context.createOscillator();
+            audio.createOscillator();
+
         const gain =
-            context.createGain();
+            audio.createGain();
+
+
         oscillator.connect(gain);
-        gain.connect(context.destination);
+
+        gain.connect(
+            audio.destination
+        );
+
+
         const now =
-            context.currentTime;
-        switch (type) {
-            case "correct":
-                oscillator.frequency.setValueAtTime(
-                    520,
-                    now
-                );
-                oscillator.frequency.exponentialRampToValueAtTime(
-                    850,
-                    now + 0.15
-                );
-                break;
-            case "wrong":
-                oscillator.frequency.setValueAtTime(
-                    260,
-                    now
-                );
-                oscillator.frequency.exponentialRampToValueAtTime(
-                    130,
-                    now + 0.18
-                );
-                break;
-            case "level":
-                oscillator.frequency.setValueAtTime(
-                    500,
-                    now
-                );
-                oscillator.frequency.exponentialRampToValueAtTime(
-                    1000,
-                    now + 0.3
-                );
-                break;
-            default:
-                oscillator.frequency.setValueAtTime(
-                    400,
-                    now
-                );
-                oscillator.frequency.exponentialRampToValueAtTime(
-                    650,
-                    now + 0.12
-                );
+            audio.currentTime;
+
+
+        let startFrequency = 400;
+
+        let endFrequency = 600;
+
+
+        if (type === "success") {
+
+            startFrequency = 520;
+
+            endFrequency = 850;
+
+        } else if (type === "delete") {
+
+            startFrequency = 300;
+
+            endFrequency = 120;
+
+        } else if (type === "undo") {
+
+            startFrequency = 500;
+
+            endFrequency = 350;
+
+        } else if (type === "tool") {
+
+            startFrequency = 450;
+
+            endFrequency = 650;
         }
+
+
+        oscillator.frequency.setValueAtTime(
+            startFrequency,
+            now
+        );
+
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            endFrequency,
+            now + 0.12
+        );
+
+
         gain.gain.setValueAtTime(
             0.0001,
             now
         );
+
+
         gain.gain.exponentialRampToValueAtTime(
-            0.1,
+            0.08,
             now + 0.01
         );
+
+
         gain.gain.exponentialRampToValueAtTime(
             0.0001,
-            now + 0.2
+            now + 0.14
         );
+
+
         oscillator.start(now);
+
         oscillator.stop(
-            now + 0.2
+            now + 0.14
         );
+
     } catch (error) {
+
         console.warn(
             "Audio unavailable:",
             error
         );
     }
 }
+
+
 /* ========================================
-   SAVE PROGRESS
+   TOAST
 ======================================== */
-function saveProgress() {
-    localStorage.setItem(
-        "skillcore-xp",
-        String(xp)
+
+let toastTimer;
+
+
+function showToast(message) {
+
+    clearTimeout(
+        toastTimer
     );
-    localStorage.setItem(
-        "skillcore-level",
-        String(level)
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
     );
-    localStorage.setItem(
-        "skillcore-streak",
-        String(streak)
-    );
-}
-/* ========================================
-   UPDATE PLAYER
-======================================== */
-function updatePlayer() {
-    if (playerLevel) {
-        playerLevel.textContent =
-            `Level ${level}`;
-    }
-    if (streakNumber) {
-        streakNumber.textContent =
-            streak;
-    }
-    if (xpProgress) {
-        const xpRequired =
-            level * 100;
-        const progress =
-            Math.min(
-                (xp / xpRequired) * 100,
-                100
+
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
             );
-        xpProgress.style.width =
-            `${progress}%`;
-    }
+
+        }, 2200);
 }
+
+
 /* ========================================
-   ADD XP
+   STATUS
 ======================================== */
-function addXP(amount) {
-    xp += amount;
-    while (xp >= level * 100) {
-        xp -= level * 100;
-        level++;
-        showLevelUp();
-        playSound("level");
+
+function setStatus(message) {
+
+    if (!saveStatus) {
+        return;
     }
-    saveProgress();
-    updatePlayer();
+
+
+    saveStatus.textContent =
+        `● ${message}`;
 }
+
+
 /* ========================================
-   LEVEL UP EFFECT
+   CANVAS SIZE
 ======================================== */
-function showLevelUp() {
-    document.body.classList.add(
-        "level-up"
-    );
-    createLevelUpEffect();
-    setTimeout(() => {
-        document.body.classList.remove(
-            "level-up"
-        );
-    }, 700);
-}
-function createLevelUpEffect() {
-    const element =
-        document.createElement("div");
-    element.textContent =
-        `LEVEL ${level}!`;
-    element.style.position =
-        "fixed";
-    element.style.left =
-        "50%";
-    element.style.top =
-        "30%";
-    element.style.transform =
-        "translate(-50%, -50%) scale(.8)";
-    element.style.zIndex =
-        "10000";
-    element.style.pointerEvents =
-        "none";
-    element.style.color =
-        "#22d3ee";
-    element.style.fontSize =
-        "32px";
-    element.style.fontWeight =
-        "900";
-    element.style.textShadow =
-        "0 0 25px rgba(34,211,238,.6)";
-    document.body.appendChild(
-        element
-    );
-    element.animate(
-        [
-            {
-                opacity: 0,
-                transform:
-                    "translate(-50%, -50%) scale(.7)"
-            },
-            {
-                opacity: 1,
-                transform:
-                    "translate(-50%, -50%) scale(1.1)"
-            },
-            {
-                opacity: 0,
-                transform:
-                    "translate(-50%, -80%) scale(1)"
-            }
-        ],
-        {
-            duration: 900,
-            easing: "ease-out"
-        }
-    );
-    setTimeout(() => {
-        element.remove();
-    }, 900);
-}
-/* ========================================
-   START GAME
-======================================== */
-function startGame(skill) {
-    if (!questions[skill]) {
-        console.error(
-            `Skill "${skill}" does not exist.`
-        );
-        return;
-    }
-    currentSkill = skill;
-    currentQuestion = 0;
-    score = 0;
-    answered = false;
-    if (quizPanel) {
-        quizPanel.classList.remove(
-            "hidden"
-        );
-        quizPanel.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-    }
-    if (resultPanel) {
-        resultPanel.classList.add(
-            "hidden"
-        );
-    }
-    playSound("start");
-    renderQuestion();
-}
-/* ========================================
-   RENDER QUESTION
-======================================== */
-function renderQuestion() {
-    const quiz =
-        questions[currentSkill];
-    if (!quiz) {
-        return;
-    }
-    const question =
-        quiz[currentQuestion];
-    if (!question) {
-        finishGame();
-        return;
-    }
-    answered = false;
-    if (questionElement) {
-        questionElement.textContent =
-            question.question;
-    }
-    if (quizProgress) {
-        quizProgress.textContent =
-            `${currentQuestion + 1} / ${quiz.length}`;
-    }
-    if (quizScore) {
-        quizScore.textContent =
-            `Score: ${score}`;
-    }
-    if (!answersElement) {
-        return;
-    }
-    answersElement.innerHTML = "";
-    question.answers.forEach(
-        (answer, index) => {
-            const button =
-                document.createElement(
-                    "button"
-                );
-            button.type =
-                "button";
-            button.className =
-                "answer-button";
-            button.textContent =
-                answer;
-            button.dataset.index =
-                index;
-            button.addEventListener(
-                "click",
-                () => {
-                    checkAnswer(
-                        index,
-                        button
-                    );
-                }
-            );
-            answersElement.appendChild(
-                button
-            );
-        }
-    );
-    animateQuestion();
-}
-/* ========================================
-   CHECK ANSWER
-======================================== */
-function checkAnswer(
-    selectedIndex,
-    selectedButton
-) {
-    if (answered) {
-        return;
-    }
-    if (
-        !currentSkill ||
-        !questions[currentSkill]
-    ) {
-        return;
-    }
-    const question =
-        questions[currentSkill][
-            currentQuestion
-        ];
-    if (!question) {
-        return;
-    }
-    answered = true;
-    const buttons =
-        answersElement
-            ?.querySelectorAll(
-                ".answer-button"
-            );
-    buttons?.forEach(
-        button => {
-            button.disabled = true;
-        }
-    );
-    const isCorrect =
-        selectedIndex ===
-        question.correct;
-    if (isCorrect) {
-        selectedButton.classList.add(
-            "correct"
-        );
-        score++;
-        streak++;
-        addXP(25);
-        playSound("correct");
-        createParticles(
-            selectedButton
-        );
-    } else {
-        selectedButton.classList.add(
-            "wrong"
-        );
-        const correctButton =
-            buttons?.[question.correct];
-        if (correctButton) {
-            correctButton.classList.add(
-                "correct"
-            );
-        }
-        streak = 0;
-        saveProgress();
-        updatePlayer();
-        playSound("wrong");
-    }
-    if (quizScore) {
-        quizScore.textContent =
-            `Score: ${score}`;
-    }
-    setTimeout(
-        () => {
-            currentQuestion++;
-            renderQuestion();
-        },
-        850
-    );
-}
-/* ========================================
-   FINISH GAME
-======================================== */
-function finishGame() {
-    if (!currentSkill) {
-        return;
-    }
-    const quiz =
-        questions[currentSkill];
-    const total =
-        quiz.length;
-    const percentage =
-        Math.round(
-            (score / total) * 100
-        );
-    if (quizPanel) {
-        quizPanel.classList.add(
-            "hidden"
-        );
-    }
-    if (resultPanel) {
-        resultPanel.classList.remove(
-            "hidden"
-        );
-        resultPanel.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-    }
-    if (resultTitle) {
-        if (percentage >= 80) {
-            resultTitle.textContent =
-                "Excellent! 🎉";
-        } else if (percentage >= 50) {
-            resultTitle.textContent =
-                "Good Work! 💪";
-        } else {
-            resultTitle.textContent =
-                "Keep Learning! 🚀";
-        }
-    }
-    if (resultText) {
-        resultText.textContent =
-            `You scored ${score}/${total} (${percentage}%).`;
-    }
-    if (resultIcon) {
-        if (percentage >= 80) {
-            resultIcon.textContent =
-                "🏆";
-        } else if (percentage >= 50) {
-            resultIcon.textContent =
-                "⭐";
-        } else {
-            resultIcon.textContent =
-                "📚";
-        }
-    }
-    if (percentage >= 80) {
-        playSound("correct");
-        createConfetti();
-    } else {
-        playSound("start");
-    }
-}
-/* ========================================
-   RESTART GAME
-======================================== */
-function restartGame() {
-    if (!currentSkill) {
-        return;
-    }
-    startGame(
-        currentSkill
-    );
-}
-/* ========================================
-   QUESTION ANIMATION
-======================================== */
-function animateQuestion() {
-    if (!quizPanel) {
-        return;
-    }
-    if (
-        window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches
-    ) {
-        return;
-    }
-    quizPanel.animate(
-        [
-            {
-                opacity: 0,
-                transform:
-                    "translateY(18px) scale(.98)"
-            },
-            {
-                opacity: 1,
-                transform:
-                    "translateY(0) scale(1)"
-            }
-        ],
-        {
-            duration: 350,
-            easing:
-                "cubic-bezier(.2,.8,.2,1)"
-        }
-    );
-}
-/* ========================================
-   3D CARD EFFECT
-======================================== */
-function setup3DCards() {
-    const cards =
-        document.querySelectorAll(
-            ".skill-card"
-        );
-    const reduceMotion =
-        window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        );
-    cards.forEach(card => {
-        card.addEventListener(
-            "pointermove",
-            event => {
-                if (reduceMotion.matches) {
-                    return;
-                }
-                const rect =
-                    card.getBoundingClientRect();
-                const x =
-                    event.clientX -
-                    rect.left;
-                const y =
-                    event.clientY -
-                    rect.top;
-                const centerX =
-                    rect.width / 2;
-                const centerY =
-                    rect.height / 2;
-                const rotateY =
-                    ((x - centerX) /
-                        centerX) * 5;
-                const rotateX =
-                    ((centerY - y) /
-                        centerY) * 5;
-                card.style.transform =
-                    `
-                    perspective(700px)
-                    rotateX(${rotateX}deg)
-                    rotateY(${rotateY}deg)
-                    translateY(-4px)
-                    `;
-            }
-        );
-        card.addEventListener(
-            "pointerleave",
-            () => {
-                card.style.transform =
-                    "";
-            }
-        );
-    });
-}
-/* ========================================
-   XP PARTICLES
-======================================== */
-function createParticles(element) {
-    if (
-        window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches
-    ) {
-        return;
-    }
+
+function resizeCanvas() {
+
+    const wrapper =
+        canvas.parentElement;
+
+
     const rect =
-        element.getBoundingClientRect();
-    for (let i = 0; i < 5; i++) {
-        const particle =
-            document.createElement("span");
-        particle.textContent =
-            "+25 XP";
-        particle.style.position =
-            "fixed";
-        particle.style.left =
-            `${rect.left + rect.width / 2}px`;
-        particle.style.top =
-            `${rect.top}px`;
-        particle.style.pointerEvents =
-            "none";
-        particle.style.zIndex =
-            "9999";
-        particle.style.color =
-            "#22d3ee";
-        particle.style.fontWeight =
-            "800";
-        particle.style.fontSize =
-            "12px";
-        document.body.appendChild(
-            particle
-        );
-        const x =
-            (Math.random() - 0.5) * 100;
-        particle.animate(
-            [
-                {
-                    opacity: 1,
-                    transform:
-                        "translate(-50%, 0) scale(1)"
-                },
-                {
-                    opacity: 0,
-                    transform:
-                        `translate(calc(-50% + ${x}px), -70px) scale(1.2)`
-                }
-            ],
-            {
-                duration: 700,
-                easing: "ease-out"
-            }
-        );
-        setTimeout(
-            () => particle.remove(),
-            700
-        );
-    }
-}
-/* ========================================
-   CONFETTI
-======================================== */
-function createConfetti() {
+        wrapper.getBoundingClientRect();
+
+
     if (
-        window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches
+        rect.width <= 0 ||
+        rect.height <= 0
     ) {
         return;
     }
-    const symbols = [
-        "✦",
-        "✧",
-        "◆",
-        "●"
-    ];
-    const colors = [
-        "#6366f1",
-        "#22d3ee",
-        "#22c55e",
-        "#facc15"
-    ];
-    for (let i = 0; i < 25; i++) {
-        const piece =
-            document.createElement(
-                "span"
+
+
+    const oldImage =
+        canvas.width > 0 &&
+        canvas.height > 0
+            ? canvas.toDataURL()
+            : null;
+
+
+    const devicePixelRatio =
+        Math.max(
+            1,
+            window.devicePixelRatio || 1
+        );
+
+
+    canvas.width =
+        Math.floor(
+            rect.width *
+            devicePixelRatio
+        );
+
+
+    canvas.height =
+        Math.floor(
+            rect.height *
+            devicePixelRatio
+        );
+
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+
+
+    ctx.lineCap =
+        "round";
+
+    ctx.lineJoin =
+        "round";
+
+
+    ctx.fillStyle =
+        "#ffffff";
+
+    ctx.fillRect(
+        0,
+        0,
+        rect.width,
+        rect.height
+    );
+
+
+    if (oldImage) {
+
+        const image =
+            new Image();
+
+
+        image.onload = () => {
+
+            ctx.drawImage(
+                image,
+                0,
+                0,
+                rect.width,
+                rect.height
             );
-        piece.textContent =
-            symbols[
-                Math.floor(
-                    Math.random() *
-                    symbols.length
-                )
-            ];
-        piece.style.position =
-            "fixed";
-        piece.style.left =
-            `${Math.random() * 100}%`;
-        piece.style.top =
-            "-20px";
-        piece.style.zIndex =
-            "9999";
-        piece.style.pointerEvents =
-            "none";
-        piece.style.color =
-            colors[
-                Math.floor(
-                    Math.random() *
-                    colors.length
-                )
-            ];
-        piece.style.fontSize =
-            `${10 + Math.random() * 10}px`;
-        document.body.appendChild(
-            piece
-        );
-        piece.animate(
-            [
-                {
-                    transform:
-                        "translateY(0) rotate(0deg)",
-                    opacity: 1
-                },
-                {
-                    transform:
-                        `translateY(100vh) rotate(720deg)`,
-                    opacity: 0
-                }
-            ],
-            {
-                duration:
-                    1200 +
-                    Math.random() * 1000,
-                easing: "ease-in"
-            }
-        );
-        setTimeout(
-            () => piece.remove(),
-            2300
-        );
+        };
+
+
+        image.src =
+            oldImage;
     }
 }
+
+
 /* ========================================
-   BUTTON SETUP
+   CANVAS POSITION
 ======================================== */
-function setupButtons() {
-    const playButtons =
-        document.querySelectorAll(
-            ".play-button"
+
+function getPointerPosition(event) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            event.clientX -
+            rect.left,
+
+        y:
+            event.clientY -
+            rect.top
+    };
+}
+
+
+/* ========================================
+   DRAW SETTINGS
+======================================== */
+
+function configureBrush() {
+
+    ctx.lineWidth =
+        Number(
+            brushSize.value
         );
-    playButtons.forEach(
+
+
+    if (currentTool === "eraser") {
+
+        ctx.globalCompositeOperation =
+            "destination-out";
+
+    } else {
+
+        ctx.globalCompositeOperation =
+            "source-over";
+
+        ctx.strokeStyle =
+            colorPicker.value;
+    }
+}
+
+
+/* ========================================
+   START DRAWING
+======================================== */
+
+function startDrawing(event) {
+
+    event.preventDefault();
+
+
+    isDrawing = true;
+
+
+    const position =
+        getPointerPosition(event);
+
+
+    lastX =
+        position.x;
+
+    lastY =
+        position.y;
+
+
+    configureBrush();
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        lastX,
+        lastY
+    );
+
+
+    try {
+
+        canvas.setPointerCapture(
+            event.pointerId
+        );
+
+    } catch {
+        // Pointer capture not supported.
+    }
+}
+
+
+/* ========================================
+   DRAW
+======================================== */
+
+function draw(event) {
+
+    if (!isDrawing) {
+        return;
+    }
+
+
+    event.preventDefault();
+
+
+    const position =
+        getPointerPosition(event);
+
+
+    configureBrush();
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        lastX,
+        lastY
+    );
+
+
+    ctx.lineTo(
+        position.x,
+        position.y
+    );
+
+
+    ctx.stroke();
+
+
+    lastX =
+        position.x;
+
+    lastY =
+        position.y;
+}
+
+
+/* ========================================
+   STOP DRAWING
+======================================== */
+
+function stopDrawing(event) {
+
+    if (!isDrawing) {
+        return;
+    }
+
+
+    isDrawing = false;
+
+
+    ctx.closePath();
+
+
+    try {
+
+        canvas.releasePointerCapture(
+            event.pointerId
+        );
+
+    } catch {
+        // Pointer capture unavailable.
+    }
+
+
+    saveCanvasState();
+
+    scheduleAutoSave();
+}
+
+
+/* ========================================
+   TOOL
+======================================== */
+
+function setTool(tool) {
+
+    currentTool =
+        tool;
+
+
+    toolButtons.forEach(
         button => {
-            button.addEventListener(
-                "click",
-                () => {
-                    const skill =
-                        button.dataset.skill ||
-                        button.closest(
-                            ".skill-card"
-                        )?.dataset.skill;
-                    if (!skill) {
-                        console.warn(
-                            "Missing data-skill."
-                        );
-                        return;
-                    }
-                    startGame(skill);
-                }
+
+            button.classList.toggle(
+                "active",
+                button.dataset.tool === tool
             );
         }
     );
-    const restartButtons =
-        document.querySelectorAll(
-            "[data-restart]"
-        );
-    restartButtons.forEach(
-        button => {
-            button.addEventListener(
-                "click",
-                restartGame
-            );
-        }
-    );
-    const resetButtons =
-        document.querySelectorAll(
-            "[data-reset]"
-        );
-    resetButtons.forEach(
-        button => {
-            button.addEventListener(
-                "click",
-                resetProgress
-            );
-        }
+
+
+    canvas.style.cursor =
+        tool === "eraser"
+            ? "cell"
+            : "crosshair";
+
+
+    playSound("tool");
+
+    showToast(
+        tool === "eraser"
+            ? "Eraser selected."
+            : "Brush selected."
     );
 }
+
+
 /* ========================================
-   RESET PROGRESS
+   HISTORY
 ======================================== */
-function resetProgress() {
+
+function getCanvasData() {
+
+    return canvas.toDataURL(
+        "image/png"
+    );
+}
+
+
+function saveCanvasState() {
+
+    const state =
+        getCanvasData();
+
+
+    if (
+        historyIndex >= 0 &&
+        history[historyIndex] === state
+    ) {
+        return;
+    }
+
+
+    history =
+        history.slice(
+            0,
+            historyIndex + 1
+        );
+
+
+    history.push(
+        state
+    );
+
+
+    if (history.length > 30) {
+
+        history.shift();
+    }
+
+
+    historyIndex =
+        history.length - 1;
+
+
+    updateHistoryButtons();
+}
+
+
+function restoreCanvasState(state) {
+
+    const image =
+        new Image();
+
+
+    image.onload = () => {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        ctx.save();
+
+
+        ctx.setTransform(
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+        );
+
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        const dpr =
+            Math.max(
+                1,
+                window.devicePixelRatio || 1
+            );
+
+
+        ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+
+        ctx.globalCompositeOperation =
+            "source-over";
+
+
+        ctx.fillStyle =
+            "#ffffff";
+
+
+        ctx.fillRect(
+            0,
+            0,
+            rect.width,
+            rect.height
+        );
+
+
+        ctx.drawImage(
+            image,
+            0,
+            0,
+            rect.width,
+            rect.height
+        );
+
+
+        ctx.restore();
+
+
+        scheduleAutoSave();
+    };
+
+
+    image.src =
+        state;
+}
+
+
+function undo() {
+
+    if (historyIndex <= 0) {
+
+        showToast(
+            "Nothing to undo."
+        );
+
+        return;
+    }
+
+
+    historyIndex--;
+
+    restoreCanvasState(
+        history[historyIndex]
+    );
+
+
+    updateHistoryButtons();
+
+    playSound("undo");
+
+    showToast(
+        "Undo."
+    );
+}
+
+
+function redo() {
+
+    if (
+        historyIndex >=
+        history.length - 1
+    ) {
+
+        showToast(
+            "Nothing to redo."
+        );
+
+        return;
+    }
+
+
+    historyIndex++;
+
+    restoreCanvasState(
+        history[historyIndex]
+    );
+
+
+    updateHistoryButtons();
+
+    playSound("tool");
+
+    showToast(
+        "Redo."
+    );
+}
+
+
+function updateHistoryButtons() {
+
+    undoButton.disabled =
+        historyIndex <= 0;
+
+
+    redoButton.disabled =
+        historyIndex >=
+        history.length - 1;
+
+
+    undoButton.style.opacity =
+        undoButton.disabled
+            ? "0.45"
+            : "1";
+
+
+    redoButton.style.opacity =
+        redoButton.disabled
+            ? "0.45"
+            : "1";
+}
+
+
+/* ========================================
+   CLEAR
+======================================== */
+
+function clearCanvas() {
+
     const confirmed =
         window.confirm(
-            "Reset all SkillCore progress?"
+            "Clear the entire drawing?"
         );
+
+
     if (!confirmed) {
         return;
     }
-    xp = 0;
-    level = 1;
-    streak = 0;
-    score = 0;
-    currentSkill = null;
-    currentQuestion = 0;
-    answered = false;
-    saveProgress();
-    updatePlayer();
-    playSound("start");
-    if (quizPanel) {
-        quizPanel.classList.add(
-            "hidden"
+
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    ctx.save();
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    ctx.fillStyle =
+        "#ffffff";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        rect.width,
+        rect.height
+    );
+
+
+    ctx.restore();
+
+
+    saveCanvasState();
+
+    scheduleAutoSave();
+
+    playSound("delete");
+
+    showToast(
+        "Canvas cleared."
+    );
+}
+
+
+/* ========================================
+   LOCAL STORAGE
+======================================== */
+
+function saveDrawing() {
+
+    try {
+
+        localStorage.setItem(
+            "drawflow-drawing",
+            getCanvasData()
         );
-    }
-    if (resultPanel) {
-        resultPanel.classList.add(
-            "hidden"
+
+
+        setStatus(
+            "Saved"
+        );
+
+
+        showToast(
+            "Drawing saved."
+        );
+
+
+        playSound(
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save drawing:",
+            error
+        );
+
+
+        showToast(
+            "Could not save drawing."
         );
     }
 }
+
+
+function scheduleAutoSave() {
+
+    clearTimeout(
+        saveTimer
+    );
+
+
+    setStatus(
+        "Saving..."
+    );
+
+
+    saveTimer =
+        setTimeout(
+            saveDrawingSilently,
+            500
+        );
+}
+
+
+function saveDrawingSilently() {
+
+    try {
+
+        localStorage.setItem(
+            "drawflow-drawing",
+            getCanvasData()
+        );
+
+
+        setStatus(
+            "Saved"
+        );
+
+    } catch {
+
+        setStatus(
+            "Save failed"
+        );
+    }
+}
+
+
+function loadDrawing() {
+
+    const saved =
+        localStorage.getItem(
+            "drawflow-drawing"
+        );
+
+
+    if (!saved) {
+        return false;
+    }
+
+
+    restoreCanvasState(
+        saved
+    );
+
+
+    return true;
+}
+
+
 /* ========================================
-   KEYBOARD CONTROLS
+   DOWNLOAD
 ======================================== */
-document.addEventListener(
-    "keydown",
+
+function downloadPNG() {
+
+    const link =
+        document.createElement("a");
+
+
+    link.download =
+        `drawflow-${Date.now()}.png`;
+
+
+    link.href =
+        canvas.toDataURL(
+            "image/png"
+        );
+
+
+    link.click();
+
+
+    playSound(
+        "success"
+    );
+
+
+    showToast(
+        "PNG downloaded."
+    );
+}
+
+
+/* ========================================
+   THEME
+======================================== */
+
+function loadTheme() {
+
+    if (isLight) {
+
+        document.body.classList.add(
+            "light"
+        );
+
+
+        themeButton.textContent =
+            "☀️";
+
+    } else {
+
+        themeButton.textContent =
+            "🌙";
+    }
+}
+
+
+function toggleTheme() {
+
+    isLight =
+        document.body.classList.toggle(
+            "light"
+        );
+
+
+    localStorage.setItem(
+        "drawflow-theme",
+        isLight
+            ? "light"
+            : "dark"
+    );
+
+
+    themeButton.textContent =
+        isLight
+            ? "☀️"
+            : "🌙";
+
+
+    playSound(
+        "tool"
+    );
+}
+
+
+/* ========================================
+   SOUND
+======================================== */
+
+function loadSoundState() {
+
+    soundButton.textContent =
+        soundEnabled
+            ? "🔊"
+            : "🔇";
+}
+
+
+function toggleSound() {
+
+    soundEnabled =
+        !soundEnabled;
+
+
+    localStorage.setItem(
+        "drawflow-sound",
+        soundEnabled
+            ? "on"
+            : "off"
+    );
+
+
+    soundButton.textContent =
+        soundEnabled
+            ? "🔊"
+            : "🔇";
+
+
+    if (soundEnabled) {
+
+        playSound(
+            "success"
+        );
+
+        showToast(
+            "Sound enabled."
+        );
+
+    } else {
+
+        showToast(
+            "Sound disabled."
+        );
+    }
+}
+
+
+/* ========================================
+   EVENTS
+======================================== */
+
+canvas.addEventListener(
+    "pointerdown",
+    startDrawing
+);
+
+
+canvas.addEventListener(
+    "pointermove",
+    draw
+);
+
+
+canvas.addEventListener(
+    "pointerup",
+    stopDrawing
+);
+
+
+canvas.addEventListener(
+    "pointercancel",
+    stopDrawing
+);
+
+
+canvas.addEventListener(
+    "pointerleave",
     event => {
-        if (!currentSkill) {
-            return;
-        }
-        if (answered) {
-            return;
-        }
-        const number =
-            Number(event.key);
-        if (
-            number >= 1 &&
-            number <= 4
-        ) {
-            const buttons =
-                answersElement?.querySelectorAll(
-                    ".answer-button"
-                );
-            const button =
-                buttons?.[number - 1];
-            if (button) {
-                button.click();
-            }
+
+        if (isDrawing) {
+            stopDrawing(event);
         }
     }
 );
-/* ========================================
-   PREVENT FORM SUBMISSION
-======================================== */
-function preventFormSubmission() {
-    document.addEventListener(
-        "submit",
-        event => {
-            event.preventDefault();
+
+
+toolButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                setTool(
+                    button.dataset.tool
+                );
+            }
+        );
+    }
+);
+
+
+colorPicker.addEventListener(
+    "input",
+    () => {
+
+        if (
+            currentTool ===
+            "eraser"
+        ) {
+            setTool("brush");
         }
-    );
-}
+    }
+);
+
+
+brushSize.addEventListener(
+    "input",
+    () => {
+
+        sizeValue.textContent =
+            brushSize.value;
+    }
+);
+
+
+undoButton.addEventListener(
+    "click",
+    undo
+);
+
+
+redoButton.addEventListener(
+    "click",
+    redo
+);
+
+
+clearButton.addEventListener(
+    "click",
+    clearCanvas
+);
+
+
+saveButton.addEventListener(
+    "click",
+    saveDrawing
+);
+
+
+downloadButton.addEventListener(
+    "click",
+    downloadPNG
+);
+
+
+soundButton.addEventListener(
+    "click",
+    toggleSound
+);
+
+
+themeButton.addEventListener(
+    "click",
+    toggleTheme
+);
+
+
 /* ========================================
-   INITIALIZE
+   KEYBOARD SHORTCUTS
 ======================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        const modifier =
+            event.ctrlKey ||
+            event.metaKey;
+
+
+        if (!modifier) {
+            return;
+        }
+
+
+        if (
+            event.key.toLowerCase() ===
+            "z"
+        ) {
+
+            event.preventDefault();
+
+            if (event.shiftKey) {
+
+                redo();
+
+            } else {
+
+                undo();
+            }
+        }
+
+
+        if (
+            event.key.toLowerCase() ===
+            "y"
+        ) {
+
+            event.preventDefault();
+
+            redo();
+        }
+    }
+);
+
+
+/* ========================================
+   RESIZE
+======================================== */
+
+let resizeTimer;
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        clearTimeout(
+            resizeTimer
+        );
+
+
+        resizeTimer =
+            setTimeout(
+                () => {
+
+                    const saved =
+                        getCanvasData();
+
+
+                    resizeCanvas();
+
+
+                    restoreCanvasState(
+                        saved
+                    );
+
+                },
+                150
+            );
+    }
+);
+
+
+/* ========================================
+   INIT
+======================================== */
+
 function init() {
-    updatePlayer();
-    setupButtons();
-    setup3DCards();
-    preventFormSubmission();
-}
-if (
-    document.readyState ===
-    "loading"
-) {
-    document.addEventListener(
-        "DOMContentLoaded",
-        init
+
+    loadTheme();
+
+    loadSoundState();
+
+
+    resizeCanvas();
+
+
+    const hasDrawing =
+        loadDrawing();
+
+
+    if (!hasDrawing) {
+
+        saveCanvasState();
+
+        saveDrawingSilently();
+    }
+
+
+    updateHistoryButtons();
+
+
+    sizeValue.textContent =
+        brushSize.value;
+
+
+    setStatus(
+        "Ready"
     );
-} else {
-    init();
 }
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
