@@ -1,57 +1,35 @@
-SkillCore 🎮
+🎨 Interactive Drawing Studio
 
-SkillCore is an interactive learning game designed to help developers practice programming skills through short challenges, quizzes, and progression systems.
+A modern, interactive web drawing application built with HTML, CSS, and JavaScript.
 
-🎯 Project Goal
-
-The goal of SkillCore is to turn programming practice into an interactive experience instead of traditional passive learning.
-
-Users can:
-
-* 🧠 Practice programming concepts
-* 🎯 Answer interactive challenges
-* ⭐ Earn XP
-* 🔥 Build learning streaks
-* 📈 Track their progress
-* 🎮 Choose different skill categories
+The project focuses on creating a smooth drawing experience directly in the browser, with interactive tools, visual effects, and sound feedback.
 
 ✨ Features
 
-* Interactive programming challenges
-* Multiple skill categories
-* XP and level progression
-* Score system
-* Learning streak
-* Interactive quiz interface
-* 3D-style cards
-* Hover effects and animations
-* Responsive design
-* Mobile-first interface
-* Reduced-motion accessibility support
+* 🖌️ Draw directly on the canvas
+* 🎨 Choose different colors
+* 📏 Adjust brush size
+* 🧹 Eraser tool
+* ↩️ Undo drawing actions
+* 🗑️ Clear the canvas
+* 💾 Save/download the drawing
+* 🔊 Interactive sound effects
+* 📱 Responsive design for mobile and desktop
+* 🌙 Modern dark interface
+* ⚡ Smooth animations and interactions
 
 🛠️ Technologies
 
 * HTML5
 * CSS3
 * JavaScript
-* LocalStorage
-* Responsive Web Design
-* CSS 3D Transforms
-* CSS Animations
-
-📱 Mobile First
-
-SkillCore is designed to be developed and used directly from a smartphone.
-
-The interface adapts to:
-
-* 📱 Mobile phones
-* 📲 Tablets
-* 💻 Desktop screens
+* Canvas API
+* Web Audio API
+* Local browser features
 
 📂 Project Structure
 
-SkillCore/
+Interactive-Drawing-Studio/
 │
 ├── index.html
 ├── style.css
@@ -60,38 +38,69 @@ SkillCore/
 
 🚀 How to Run
 
-No backend or installation is required.
+No installation or backend is required.
 
-Simply open:
+1. Download or clone the repository.
+2. Open index.html in a web browser.
+3. Start drawing.
 
-index.html
+🎮 How to Use
 
-in a modern web browser.
+1. Select a color.
+2. Choose the brush size.
+3. Draw on the canvas.
+4. Use the eraser when needed.
+5. Undo or clear your work.
+6. Save your finished drawing.
+7. Enjoy the interactive sound feedback 🔊
 
-🧩 Future Improvements
+📱 Responsive Design
 
-Possible future versions may include:
+The interface is designed to work across:
 
-* More programming challenges
-* More difficulty levels
-* Better progression system
-* More advanced animations
-* Sound effects
-* Achievement system
-* Leaderboard
-* User profiles
-* Online database
-* Backend API
-* Authentication
+* 📱 Mobile devices
+* 💻 Laptops
+* 🖥️ Desktop screens
+* 📟 Tablets
 
-📌 Project Status
+🎯 Project Goals
 
-Version: 1.0
+This project was created to practice:
 
-Status: Completed — Frontend Prototype
+* DOM manipulation
+* JavaScript event handling
+* Canvas API
+* Mouse and touch interactions
+* Web Audio API
+* Responsive UI design
+* Browser-based application development
+* Building an interactive frontend project from scratch
+
+🔮 Future Improvements
+
+Possible future improvements include:
+
+* Multiple brush types
+* Shape tools
+* Text tool
+* More advanced undo/redo history
+* Layers
+* More sound effects
+* Export in different image formats
+* Improved mobile drawing controls
+
+📸 Preview
+
+Add a screenshot or GIF of the application here:
+
+Coming soon...
 
 👨‍💻 Author
 
 Yassir
 
-Built as part of a personal developer portfolio to practice frontend development, JavaScript logic, UI/UX, and interactive web experiences.
+Built as part of my journey to improve my web development and JavaScript skills.
+
+⸻
+
+⭐ If you like the project, consider giving the repository a star!
