@@ -1,777 +1,1119 @@
 /* ========================================
    SkillCore — Interactive Learning Game
-   Mobile First / 3D UI
+   JavaScript
 ======================================== */
 
-:root {
-    --bg: #080b14;
-    --surface: #111625;
-    --surface-2: #171d2e;
-    --border: #273047;
+"use strict";
 
-    --text: #f8fafc;
-    --muted: #94a3b8;
+/* ========================================
+   DATA
+======================================== */
 
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --cyan: #22d3ee;
-    --green: #22c55e;
-    --red: #ef4444;
-    --yellow: #facc15;
+const questions = {
+    javascript: [
+        {
+            question: "Which keyword declares a variable that cannot be reassigned?",
+            answers: ["let", "var", "const", "static"],
+            correct: 2
+        },
+        {
+            question: "Which method converts JSON text into a JavaScript object?",
+            answers: [
+                "JSON.parse()",
+                "JSON.stringify()",
+                "JSON.convert()",
+                "JSON.object()"
+            ],
+            correct: 0
+        },
+        {
+            question: "Which symbol is used for strict equality?",
+            answers: ["=", "==", "===", "!="],
+            correct: 2
+        }
+    ],
 
-    --radius: 18px;
-    --transition: 180ms ease;
-}
+    html: [
+        {
+            question: "Which HTML element creates a hyperlink?",
+            answers: ["<link>", "<a>", "<href>", "<url>"],
+            correct: 1
+        },
+        {
+            question: "Which element is used for the largest heading?",
+            answers: ["<heading>", "<h6>", "<head>", "<h1>"],
+            correct: 3
+        }
+    ],
+
+    css: [
+        {
+            question: "Which property changes text color?",
+            answers: ["font-color", "text-color", "color", "foreground"],
+            correct: 2
+        },
+        {
+            question: "Which CSS property creates rounded corners?",
+            answers: [
+                "corner-radius",
+                "border-radius",
+                "radius",
+                "round-border"
+            ],
+            correct: 1
+        }
+    ],
+
+    python: [
+        {
+            question: "Which keyword defines a function in Python?",
+            answers: ["function", "func", "def", "define"],
+            correct: 2
+        },
+        {
+            question: "Which symbol starts a comment in Python?",
+            answers: ["//", "<!--", "#", "/*"],
+            correct: 2
+        }
+    ]
+};
 
 
 /* ========================================
-   RESET
+   GAME STATE
 ======================================== */
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+let currentSkill = null;
+let currentQuestion = 0;
+let score = 0;
+let xp = Number(localStorage.getItem("skillcore-xp")) || 0;
+let level = Number(localStorage.getItem("skillcore-level")) || 1;
+let streak = Number(localStorage.getItem("skillcore-streak")) || 0;
 
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    min-height: 100vh;
-
-    background:
-        radial-gradient(
-            circle at 20% 10%,
-            rgba(99, 102, 241, 0.18),
-            transparent 35%
-        ),
-        radial-gradient(
-            circle at 80% 90%,
-            rgba(34, 211, 238, 0.10),
-            transparent 35%
-        ),
-        var(--bg);
-
-    color: var(--text);
-
-    font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-    line-height: 1.5;
-}
-
-button,
-input,
-select {
-    font: inherit;
-}
-
-button {
-    border: 0;
-    cursor: pointer;
-}
+let answered = false;
 
 
 /* ========================================
-   APP
+   DOM
 ======================================== */
 
-.app {
-    min-height: 100vh;
-    padding: 16px;
-}
+const quizPanel =
+    document.querySelector(".quiz-panel");
+
+const resultPanel =
+    document.querySelector(".result-panel");
+
+const questionElement =
+    document.querySelector(".question");
+
+const answersElement =
+    document.querySelector(".answers");
+
+const quizProgress =
+    document.querySelector(".quiz-progress");
+
+const quizScore =
+    document.querySelector(".quiz-score");
+
+const xpProgress =
+    document.querySelector(".xp-progress");
+
+const playerLevel =
+    document.querySelector(".player-level");
+
+const streakNumber =
+    document.querySelector(".streak-number");
 
 
 /* ========================================
-   HEADER
+   OPTIONAL ELEMENTS
 ======================================== */
 
-.header {
-    max-width: 1100px;
-    margin: 0 auto 24px;
+const resultTitle =
+    document.querySelector(".result-panel h2");
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+const resultText =
+    document.querySelector(".result-panel p");
 
-    gap: 12px;
+const resultIcon =
+    document.querySelector(".result-icon");
+
+
+/* ========================================
+   AUDIO
+======================================== */
+
+let audioContext = null;
+
+
+function getAudioContext() {
+
+    if (!audioContext) {
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+    }
+
+    return audioContext;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
 
-    font-size: 20px;
-    font-weight: 800;
-}
+function playSound(type) {
 
-.logo-icon {
-    width: 40px;
-    height: 40px;
+    try {
 
-    display: grid;
-    place-items: center;
+        const context =
+            getAudioContext();
 
-    border-radius: 12px;
+        const oscillator =
+            context.createOscillator();
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--cyan)
+        const gain =
+            context.createGain();
+
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+
+        const now =
+            context.currentTime;
+
+
+        if (type === "correct") {
+
+            oscillator.frequency.setValueAtTime(
+                520,
+                now
+            );
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+                850,
+                now + 0.15
+            );
+
+        } else if (type === "wrong") {
+
+            oscillator.frequency.setValueAtTime(
+                260,
+                now
+            );
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+                130,
+                now + 0.18
+            );
+
+        } else {
+
+            oscillator.frequency.setValueAtTime(
+                400,
+                now
+            );
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+                650,
+                now + 0.12
+            );
+        }
+
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
         );
 
-    color: white;
-
-    box-shadow:
-        0 8px 25px
-        rgba(99, 102, 241, 0.35);
-
-    transform: perspective(500px) rotateX(8deg);
-}
-
-
-/* ========================================
-   PLAYER
-======================================== */
-
-.player-card {
-    max-width: 1100px;
-    margin: 0 auto 24px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 14px;
-
-    padding: 16px;
-
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.06),
-            rgba(255,255,255,0.02)
+        gain.gain.exponentialRampToValueAtTime(
+            0.12,
+            now + 0.01
         );
 
-    box-shadow:
-        0 20px 50px
-        rgba(0,0,0,0.25);
-
-    backdrop-filter: blur(12px);
-}
-
-.player-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 46px;
-    height: 46px;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 50%;
-
-    background: var(--primary);
-
-    font-weight: 800;
-}
-
-.player-name {
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.player-level {
-    color: var(--muted);
-    font-size: 12px;
-}
-
-
-/* ========================================
-   XP BAR
-======================================== */
-
-.xp-container {
-    flex: 1;
-    max-width: 300px;
-}
-
-.xp-label {
-    display: flex;
-    justify-content: space-between;
-
-    margin-bottom: 6px;
-
-    color: var(--muted);
-    font-size: 11px;
-}
-
-.xp-bar {
-    height: 8px;
-
-    overflow: hidden;
-
-    border-radius: 999px;
-
-    background: #20283b;
-}
-
-.xp-progress {
-    height: 100%;
-
-    width: 65%;
-
-    border-radius: inherit;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--primary),
-            var(--cyan)
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + 0.2
         );
 
-    box-shadow:
-        0 0 14px
-        rgba(34,211,238,0.45);
 
-    transition:
-        width 500ms ease;
+        oscillator.start(now);
+        oscillator.stop(now + 0.2);
+
+    } catch (error) {
+
+        console.log(
+            "Audio unavailable:",
+            error
+        );
+    }
 }
 
 
 /* ========================================
-   GAME AREA
+   SAVE
 ======================================== */
 
-.game-container {
-    max-width: 1100px;
-    margin: 0 auto;
-}
+function saveProgress() {
 
-.game-header {
-    margin-bottom: 20px;
-}
+    localStorage.setItem(
+        "skillcore-xp",
+        xp
+    );
 
-.game-header h1 {
-    margin-bottom: 6px;
+    localStorage.setItem(
+        "skillcore-level",
+        level
+    );
 
-    font-size: clamp(26px, 6vw, 42px);
-
-    line-height: 1.1;
-
-    letter-spacing: -0.04em;
-}
-
-.game-header p {
-    color: var(--muted);
-    font-size: 14px;
+    localStorage.setItem(
+        "skillcore-streak",
+        streak
+    );
 }
 
 
 /* ========================================
-   SKILL CARDS
+   UPDATE PLAYER
 ======================================== */
 
-.skills-grid {
-    display: grid;
+function updatePlayer() {
 
-    grid-template-columns: 1fr;
+    if (playerLevel) {
 
-    gap: 14px;
+        playerLevel.textContent =
+            `Level ${level}`;
+    }
+
+
+    if (streakNumber) {
+
+        streakNumber.textContent =
+            streak;
+    }
+
+
+    if (xpProgress) {
+
+        const xpInsideLevel =
+            xp % 100;
+
+        xpProgress.style.width =
+            `${xpInsideLevel}%`;
+    }
 }
 
-.skill-card {
-    position: relative;
 
-    min-height: 190px;
+/* ========================================
+   ADD XP
+======================================== */
 
-    padding: 20px;
+function addXP(amount) {
 
-    overflow: hidden;
+    xp += amount;
 
-    border: 1px solid var(--border);
-    border-radius: 22px;
 
-    background:
-        linear-gradient(
-            145deg,
-            var(--surface-2),
-            var(--surface)
+    while (xp >= level * 100) {
+
+        xp -= level * 100;
+
+        level++;
+
+        showLevelUp();
+
+        playSound("level");
+    }
+
+
+    saveProgress();
+
+    updatePlayer();
+}
+
+
+/* ========================================
+   LEVEL UP
+======================================== */
+
+function showLevelUp() {
+
+    document.body.classList.add(
+        "level-up"
+    );
+
+
+    setTimeout(() => {
+
+        document.body.classList.remove(
+            "level-up"
         );
 
-    box-shadow:
-        0 15px 35px
-        rgba(0,0,0,0.25);
-
-    transform-style: preserve-3d;
-
-    transition:
-        transform 250ms ease,
-        border-color 250ms ease,
-        box-shadow 250ms ease;
+    }, 700);
 }
 
-.skill-card::before {
-    content: "";
 
-    position: absolute;
+/* ========================================
+   START GAME
+======================================== */
 
-    width: 180px;
-    height: 180px;
+function startGame(skill) {
 
-    top: -80px;
-    right: -60px;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(99,102,241,0.25),
-            transparent 70%
+    if (!questions[skill]) {
+        console.error(
+            `Skill "${skill}" does not exist.`
         );
 
-    pointer-events: none;
-}
+        return;
+    }
 
-.skill-card:hover {
-    transform:
-        perspective(700px)
-        rotateX(3deg)
-        rotateY(-3deg)
-        translateY(-4px);
 
-    border-color:
-        rgba(99,102,241,0.7);
+    currentSkill = skill;
 
-    box-shadow:
-        0 25px 50px
-        rgba(0,0,0,0.35);
-}
+    currentQuestion = 0;
 
-.skill-icon {
-    width: 52px;
-    height: 52px;
+    score = 0;
 
-    display: grid;
-    place-items: center;
+    answered = false;
 
-    margin-bottom: 18px;
 
-    border-radius: 15px;
+    if (quizPanel) {
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--cyan)
+        quizPanel.classList.remove(
+            "hidden"
         );
 
-    font-size: 22px;
+        quizPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
 
-    transform:
-        translateZ(25px);
 
-    box-shadow:
-        0 10px 25px
-        rgba(99,102,241,0.3);
-}
+    if (resultPanel) {
 
-.skill-card h2 {
-    margin-bottom: 5px;
+        resultPanel.classList.add(
+            "hidden"
+        );
+    }
 
-    font-size: 18px;
 
-    transform:
-        translateZ(18px);
-}
+    playSound("start");
 
-.skill-card p {
-    color: var(--muted);
-
-    font-size: 13px;
-
-    transform:
-        translateZ(12px);
+    renderQuestion();
 }
 
 
 /* ========================================
-   GAME BUTTON
+   RENDER QUESTION
 ======================================== */
 
-.play-button {
-    width: 100%;
+function renderQuestion() {
 
-    min-height: 46px;
+    const quiz =
+        questions[currentSkill];
 
-    margin-top: 18px;
 
-    border-radius: 12px;
+    const question =
+        quiz[currentQuestion];
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-dark)
+
+    if (!question) {
+
+        finishGame();
+
+        return;
+    }
+
+
+    answered = false;
+
+
+    if (questionElement) {
+
+        questionElement.textContent =
+            question.question;
+    }
+
+
+    if (quizProgress) {
+
+        quizProgress.textContent =
+            `${currentQuestion + 1} / ${quiz.length}`;
+    }
+
+
+    if (quizScore) {
+
+        quizScore.textContent =
+            `Score: ${score}`;
+    }
+
+
+    if (!answersElement) {
+        return;
+    }
+
+
+    answersElement.innerHTML = "";
+
+
+    question.answers.forEach(
+        (answer, index) => {
+
+            const button =
+                document.createElement("button");
+
+            button.type = "button";
+
+            button.className =
+                "answer-button";
+
+            button.textContent =
+                answer;
+
+
+            button.addEventListener(
+                "click",
+                () => checkAnswer(
+                    index,
+                    button
+                )
+            );
+
+
+            answersElement.appendChild(
+                button
+            );
+        }
+    );
+
+
+    animateQuestion();
+}
+
+
+/* ========================================
+   CHECK ANSWER
+======================================== */
+
+function checkAnswer(
+    selectedIndex,
+    selectedButton
+) {
+
+    if (answered) {
+        return;
+    }
+
+
+    answered = true;
+
+
+    const question =
+        questions[currentSkill][currentQuestion];
+
+
+    const buttons =
+        answersElement.querySelectorAll(
+            ".answer-button"
         );
 
-    color: white;
 
-    font-size: 13px;
-    font-weight: 800;
-
-    box-shadow:
-        0 8px 20px
-        rgba(79,70,229,0.3);
-
-    transition:
-        transform var(--transition),
-        box-shadow var(--transition);
-}
-
-.play-button:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 12px 28px
-        rgba(79,70,229,0.45);
-}
-
-.play-button:active {
-    transform:
-        translateY(1px)
-        scale(0.98);
-}
+    buttons.forEach(
+        button => {
+            button.disabled = true;
+        }
+    );
 
 
-/* ========================================
-   QUIZ PANEL
-======================================== */
+    if (
+        selectedIndex ===
+        question.correct
+    ) {
 
-.quiz-panel {
-    margin-top: 22px;
-
-    padding: 20px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 22px;
-
-    background: var(--surface);
-
-    box-shadow:
-        0 20px 50px
-        rgba(0,0,0,0.3);
-}
-
-.quiz-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 20px;
-}
-
-.quiz-progress {
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-.quiz-score {
-    color: var(--cyan);
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.question {
-    margin-bottom: 20px;
-
-    font-size: 20px;
-    font-weight: 800;
-
-    line-height: 1.35;
-}
-
-
-/* ========================================
-   ANSWERS
-======================================== */
-
-.answers {
-    display: grid;
-
-    gap: 10px;
-}
-
-.answer-button {
-    width: 100%;
-
-    padding: 14px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 12px;
-
-    background: var(--surface-2);
-
-    color: var(--text);
-
-    text-align: left;
-
-    transition:
-        background var(--transition),
-        border-color var(--transition),
-        transform var(--transition);
-}
-
-.answer-button:hover {
-    background: #20283b;
-
-    border-color: var(--primary);
-
-    transform: translateX(3px);
-}
-
-.answer-button.correct {
-    border-color: var(--green);
-
-    background:
-        rgba(34,197,94,0.12);
-
-    color: #86efac;
-}
-
-.answer-button.wrong {
-    border-color: var(--red);
-
-    background:
-        rgba(239,68,68,0.12);
-
-    color: #fca5a5;
-}
-
-
-/* ========================================
-   RESULT
-======================================== */
-
-.result-panel {
-    text-align: center;
-
-    padding: 30px 20px;
-}
-
-.result-icon {
-    width: 70px;
-    height: 70px;
-
-    display: grid;
-    place-items: center;
-
-    margin: 0 auto 16px;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--cyan)
+        selectedButton.classList.add(
+            "correct"
         );
 
-    font-size: 30px;
 
-    box-shadow:
-        0 15px 35px
-        rgba(99,102,241,0.35);
-}
+        score++;
 
-.result-panel h2 {
-    margin-bottom: 6px;
+        streak++;
 
-    font-size: 26px;
-}
+        addXP(25);
 
-.result-panel p {
-    color: var(--muted);
-
-    font-size: 14px;
-}
+        playSound("correct");
 
 
-/* ========================================
-   STREAK
-======================================== */
-
-.streak-card {
-    margin-top: 20px;
-
-    padding: 18px;
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(250,204,21,0.08),
-            var(--surface)
+        createParticles(
+            selectedButton
         );
 
-    text-align: center;
-}
+    } else {
 
-.streak-number {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: var(--yellow);
-
-    font-size: 30px;
-    font-weight: 900;
-}
-
-.streak-label {
-    color: var(--muted);
-
-    font-size: 12px;
-}
+        selectedButton.classList.add(
+            "wrong"
+        );
 
 
-/* ========================================
-   HIDDEN
-======================================== */
-
-.hidden {
-    display: none !important;
-}
+        buttons[
+            question.correct
+        ].classList.add(
+            "correct"
+        );
 
 
-/* ========================================
-   ANIMATIONS
-======================================== */
+        streak = 0;
 
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform:
-            translateY(15px);
+        playSound("wrong");
+
+        saveProgress();
+
+        updatePlayer();
     }
 
-    to {
-        opacity: 1;
-        transform:
-            translateY(0);
-    }
-}
 
-@keyframes pop {
-    0% {
-        transform: scale(0.9);
-        opacity: 0;
+    if (quizScore) {
+
+        quizScore.textContent =
+            `Score: ${score}`;
     }
 
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
 
-.skill-card {
-    animation:
-        fadeUp 450ms ease both;
-}
+    setTimeout(() => {
 
-.quiz-panel {
-    animation:
-        pop 250ms ease both;
+        currentQuestion++;
+
+        renderQuestion();
+
+    }, 850);
 }
 
 
 /* ========================================
-   TABLET
+   FINISH GAME
 ======================================== */
 
-@media (min-width: 600px) {
+function finishGame() {
 
-    .app {
-        padding: 24px;
+    if (quizPanel) {
+
+        quizPanel.classList.add(
+            "hidden"
+        );
     }
 
-    .skills-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
+
+    if (resultPanel) {
+
+        resultPanel.classList.remove(
+            "hidden"
+        );
+
+        resultPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
     }
 
-    .answers {
-        grid-template-columns:
-            repeat(2, 1fr);
+
+    const total =
+        questions[currentSkill].length;
+
+
+    const percentage =
+        Math.round(
+            (score / total) * 100
+        );
+
+
+    if (resultTitle) {
+
+        resultTitle.textContent =
+            percentage >= 70
+                ? "Excellent! 🎉"
+                : "Good Work! 💪";
+    }
+
+
+    if (resultText) {
+
+        resultText.textContent =
+            `You scored ${score}/${total} (${percentage}%).`;
+    }
+
+
+    if (resultIcon) {
+
+        resultIcon.textContent =
+            percentage >= 70
+                ? "🏆"
+                : "⭐";
+    }
+
+
+    playSound(
+        percentage >= 70
+            ? "correct"
+            : "start"
+    );
+
+
+    createConfetti();
+}
+
+
+/* ========================================
+   RESTART
+======================================== */
+
+function restartGame() {
+
+    if (!currentSkill) {
+        return;
+    }
+
+
+    startGame(
+        currentSkill
+    );
+}
+
+
+/* ========================================
+   QUESTION ANIMATION
+======================================== */
+
+function animateQuestion() {
+
+    if (!quizPanel) {
+        return;
+    }
+
+
+    quizPanel.animate(
+        [
+            {
+                opacity: 0,
+                transform:
+                    "translateY(18px) scale(.98)"
+            },
+            {
+                opacity: 1,
+                transform:
+                    "translateY(0) scale(1)"
+            }
+        ],
+        {
+            duration: 350,
+            easing: "cubic-bezier(.2,.8,.2,1)"
+        }
+    );
+}
+
+
+/* ========================================
+   3D CARD EFFECT
+======================================== */
+
+function setup3DCards() {
+
+    const cards =
+        document.querySelectorAll(
+            ".skill-card"
+        );
+
+
+    cards.forEach(card => {
+
+        card.addEventListener(
+            "pointermove",
+            event => {
+
+                if (
+                    window.matchMedia(
+                        "(prefers-reduced-motion: reduce)"
+                    ).matches
+                ) {
+                    return;
+                }
+
+
+                const rect =
+                    card.getBoundingClientRect();
+
+
+                const x =
+                    event.clientX -
+                    rect.left;
+
+
+                const y =
+                    event.clientY -
+                    rect.top;
+
+
+                const centerX =
+                    rect.width / 2;
+
+
+                const centerY =
+                    rect.height / 2;
+
+
+                const rotateY =
+                    ((x - centerX) /
+                        centerX) * 5;
+
+
+                const rotateX =
+                    ((centerY - y) /
+                        centerY) * 5;
+
+
+                card.style.transform =
+                    `
+                    perspective(700px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    translateY(-4px)
+                    `;
+            }
+        );
+
+
+        card.addEventListener(
+            "pointerleave",
+            () => {
+
+                card.style.transform = "";
+            }
+        );
+    });
+}
+
+
+/* ========================================
+   PARTICLES
+======================================== */
+
+function createParticles(element) {
+
+    const rect =
+        element.getBoundingClientRect();
+
+
+    for (let i = 0; i < 8; i++) {
+
+        const particle =
+            document.createElement("span");
+
+        particle.textContent = "+25 XP";
+
+        particle.style.position =
+            "fixed";
+
+        particle.style.left =
+            `${rect.left + rect.width / 2}px`;
+
+        particle.style.top =
+            `${rect.top}px`;
+
+        particle.style.pointerEvents =
+            "none";
+
+        particle.style.zIndex =
+            "9999";
+
+        particle.style.color =
+            "#22d3ee";
+
+        particle.style.fontWeight =
+            "800";
+
+        document.body.appendChild(
+            particle
+        );
+
+
+        const x =
+            (Math.random() - 0.5) * 100;
+
+
+        particle.animate(
+            [
+                {
+                    opacity: 1,
+                    transform:
+                        "translate(-50%, 0) scale(1)"
+                },
+                {
+                    opacity: 0,
+                    transform:
+                        `translate(calc(-50% + ${x}px), -70px) scale(1.2)`
+                }
+            ],
+            {
+                duration: 700,
+                easing: "ease-out"
+            }
+        );
+
+
+        setTimeout(() => {
+
+            particle.remove();
+
+        }, 700);
     }
 }
 
 
 /* ========================================
-   DESKTOP
+   CONFETTI
 ======================================== */
 
-@media (min-width: 900px) {
+function createConfetti() {
 
-    .app {
-        padding: 32px;
-    }
+    for (let i = 0; i < 25; i++) {
 
-    .skills-grid {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
+        const piece =
+            document.createElement("span");
 
-    .skill-card {
-        min-height: 220px;
-    }
+        piece.textContent = "✦";
 
-    .quiz-panel {
-        padding: 30px;
+        piece.style.position =
+            "fixed";
+
+        piece.style.left =
+            `${Math.random() * 100}%`;
+
+        piece.style.top =
+            "-20px";
+
+        piece.style.zIndex =
+            "9999";
+
+        piece.style.pointerEvents =
+            "none";
+
+        piece.style.color =
+            [
+                "#6366f1",
+                "#22d3ee",
+                "#22c55e",
+                "#facc15"
+            ][
+                Math.floor(
+                    Math.random() * 4
+                )
+            ];
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        piece.animate(
+            [
+                {
+                    transform:
+                        "translateY(0) rotate(0deg)",
+                    opacity: 1
+                },
+                {
+                    transform:
+                        `translateY(100vh) rotate(720deg)`,
+                    opacity: 0
+                }
+            ],
+            {
+                duration:
+                    1200 +
+                    Math.random() * 1000,
+
+                easing: "ease-in"
+            }
+        );
+
+
+        setTimeout(() => {
+
+            piece.remove();
+
+        }, 2300);
     }
 }
 
 
 /* ========================================
-   REDUCED MOTION
+   BUTTONS
 ======================================== */
 
-@media (prefers-reduced-motion: reduce) {
+function setupButtons() {
 
-    *,
-    *::before,
-    *::after {
-        animation: none !important;
+    const playButtons =
+        document.querySelectorAll(
+            ".play-button"
+        );
 
-        transition: none !important;
 
-        scroll-behavior: auto !important;
-    }
+    playButtons.forEach(button => {
 
-    .skill-card:hover {
-        transform: none;
-    }
+        button.addEventListener(
+            "click",
+            () => {
+
+                const skill =
+                    button.dataset.skill ||
+                    button.closest(
+                        ".skill-card"
+                    )?.dataset.skill;
+
+
+                if (skill) {
+
+                    startGame(skill);
+
+                } else {
+
+                    console.warn(
+                        "Missing data-skill on play button."
+                    );
+                }
+            }
+        );
+    });
+
+
+    const restartButtons =
+        document.querySelectorAll(
+            "[data-restart]"
+        );
+
+
+    restartButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            restartGame
+        );
+    });
+
+
+    const resetButtons =
+        document.querySelectorAll(
+            "[data-reset]"
+        );
+
+
+    resetButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            resetProgress
+        );
+    });
 }
+
+
+/* ========================================
+   RESET PROGRESS
+======================================== */
+
+function resetProgress() {
+
+    const confirmed =
+        window.confirm(
+            "Reset all SkillCore progress?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    xp = 0;
+
+    level = 1;
+
+    streak = 0;
+
+    score = 0;
+
+    saveProgress();
+
+    updatePlayer();
+
+    playSound("start");
+}
+
+
+/* ========================================
+   KEYBOARD
+======================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (!currentSkill) {
+            return;
+        }
+
+
+        const number =
+            Number(event.key);
+
+
+        if (
+            number >= 1 &&
+            number <= 4
+        ) {
+
+            const buttons =
+                answersElement?.querySelectorAll(
+                    ".answer-button"
+                );
+
+
+            if (
+                buttons &&
+                buttons[number - 1]
+            ) {
+
+                buttons[number - 1].click();
+            }
+        }
+    }
+);
+
+
+/* ========================================
+   INIT
+======================================== */
+
+function init() {
+
+    updatePlayer();
+
+    setupButtons();
+
+    setup3DCards();
+
+
+    /* Prevent accidental page refresh
+       from submitting forms. */
+
+    document.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+        }
+    );
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
