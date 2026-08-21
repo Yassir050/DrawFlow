@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SkillCore is an interactive mini-game platform for testing reaction, memory, accuracy, logic and speed."
+    >
+
+    <meta
+        name="theme-color"
+        content="#080b16"
+    >
+
+    <title>SkillCore — Test Your Skills</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <!-- ========================================
+         APP
+    ======================================== -->
+
+    <div id="app" class="app">
+
+        <!-- ========================================
+             BACKGROUND
+        ======================================== -->
+
+        <div class="background-effects" aria-hidden="true">
+            <div class="gradient-orb orb-one"></div>
+            <div class="gradient-orb orb-two"></div>
+            <div class="grid-overlay"></div>
+        </div>
+
+
+        <!-- ========================================
+             HEADER
+        ======================================== -->
+
+        <header class="topbar">
+
+            <a
+                href="#"
+                class="logo"
+                id="logoButton"
+                aria-label="SkillCore Home"
+            >
+                <span class="logo-mark">
+                    SC
+                </span>
+
+                <span class="logo-text">
+                    SkillCore
+                </span>
+            </a>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    id="soundButton"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Toggle sound"
+                    title="Toggle sound"
+                >
+                    🔊
+                </button>
+
+
+                <button
+                    id="themeButton"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Toggle theme"
+                    title="Toggle theme"
+                >
+                    ◐
+                </button>
+
+
+                <button
+                    id="menuButton"
+                    class="icon-button mobile-only"
+                    type="button"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ========================================
+             MOBILE MENU
+        ======================================== -->
+
+        <nav
+            id="mobileMenu"
+            class="mobile-menu"
+            aria-hidden="true"
+        >
+
+            <button
+                class="menu-link active"
+                data-page="home"
+                type="button"
+            >
+                🏠 Home
+            </button>
+
+            <button
+                class="menu-link"
+                data-page="games"
+                type="button"
+            >
+                🎮 Games
+            </button>
+
+            <button
+                class="menu-link"
+                data-page="stats"
+                type="button"
+            >
+                📊 Statistics
+            </button>
+
+            <button
+                class="menu-link"
+                data-page="achievements"
+                type="button"
+            >
+                🏆 Achievements
+            </button>
+
+        </nav>
+
+
+        <!-- ========================================
+             MAIN
+        ======================================== -->
+
+        <main class="main-content">
+
+
+            <!-- ====================================
+                 HOME PAGE
+            ==================================== -->
+
+            <section
+                id="homePage"
+                class="page active"
+            >
+
+                <!-- Hero -->
+
+                <section class="hero">
+
+                    <div class="hero-content">
+
+                        <span class="eyebrow">
+                            PERFORMANCE TRAINING
+                        </span>
+
+                        <h1>
+                            Test your
+                            <span class="gradient-text">
+                                limits.
+                            </span>
+                        </h1>
+
+                        <p class="hero-description">
+                            Challenge your reaction,
+                            memory, accuracy, logic and speed
+                            through interactive mini-games.
+                        </p>
+
+
+                        <div class="hero-actions">
+
+                            <button
+                                id="playButton"
+                                class="primary-button"
+                                type="button"
+                            >
+                                ▶ Start Training
+                            </button>
+
+                            <button
+                                id="gamesButton"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Explore Games
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Player Core -->
+
+                    <div class="core-container">
+
+                        <div class="core-glow"></div>
+
+                        <div
+                            class="skill-core"
+                            id="skillCore"
+                        >
+
+                            <div class="core-ring ring-one"></div>
+                            <div class="core-ring ring-two"></div>
+                            <div class="core-ring ring-three"></div>
+
+                            <div class="core-center">
+                                <span>
+                                    SC
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Player Stats -->
+
+                <section
+                    class="player-overview"
+                    aria-label="Player statistics"
+                >
+
+                    <div class="overview-card">
+
+                        <span class="overview-icon">
+                            ⚡
+                        </span>
+
+                        <div>
+                            <span class="overview-label">
+                                Level
+                            </span>
+
+                            <strong id="playerLevel">
+                                1
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="overview-card">
+
+                        <span class="overview-icon">
+                            XP
+                        </span>
+
+                        <div>
+                            <span class="overview-label">
+                                Experience
+                            </span>
+
+                            <strong id="playerXP">
+                                0
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="overview-card">
+
+                        <span class="overview-icon">
+                            🏆
+                        </span>
+
+                        <div>
+                            <span class="overview-label">
+                                Best Score
+                            </span>
+
+                            <strong id="bestScore">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="overview-card">
+
+                        <span class="overview-icon">
+                            🎮
+                        </span>
+
+                        <div>
+                            <span class="overview-label">
+                                Games Played
+                            </span>
+
+                            <strong id="gamesPlayed">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Game Modes -->
+
+                <section class="games-section">
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                TRAINING MODES
+                            </span>
+
+                            <h2>
+                                Choose your challenge
+                            </h2>
+
+                        </div>
+
+                        <span
+                            id="gameCount"
+                            class="section-count"
+                        >
+                            5 modes
+                        </span>
+
+                    </div>
+
+
+                    <div class="game-grid">
+
+
+                        <!-- Reaction -->
+
+                        <article
+                            class="game-card"
+                            data-game="reaction"
+                        >
+
+                            <div class="game-card-top">
+
+                                <div class="game-icon reaction-icon">
+                                    ⚡
+                                </div>
+
+                                <span class="game-number">
+                                    01
+                                </span>
+
+                            </div>
+
+
+                            <h3>
+                                Reaction
+                            </h3>
+
+                            <p>
+                                Test how quickly you can react
+                                when the target appears.
+                            </p>
+
+
+                            <div class="game-card-footer">
+
+                                <span>
+                                    Speed
+                                </span>
+
+                                <button
+                                    class="play-game-button"
+                                    data-game="reaction"
+                                    type="button"
+                                    aria-label="Play Reaction"
+                                >
+                                    →
+                                </button>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Memory -->
+
+                        <article
+                            class="game-card"
+                            data-game="memory"
+                        >
+
+                            <div class="game-card-top">
+
+                                <div class="game-icon memory-icon">
+                                    🧠
+                                </div>
+
+                                <span class="game-number">
+                                    02
+                                </span>
+
+                            </div>
+
+
+                            <h3>
+                                Memory
+                            </h3>
+
+                            <p>
+                                Remember the sequence and
+                                reproduce it correctly.
+                            </p>
+
+
+                            <div class="game-card-footer">
+
+                                <span>
+                                    Memory
+                                </span>
+
+                                <button
+                                    class="play-game-button"
+                                    data-game="memory"
+                                    type="button"
+                                    aria-label="Play Memory"
+                                >
+                                    →
+                                </button>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Accuracy -->
+
+                        <article
+                            class="game-card"
+                            data-game="accuracy"
+                        >
+
+                            <div class="game-card-top">
+
+                                <div class="game-icon accuracy-icon">
+                                    🎯
+                                </div>
+
+                                <span class="game-number">
+                                    03
+                                </span>
+
+                            </div>
+
+
+                            <h3>
+                                Accuracy
+                            </h3>
+
+                            <p>
+                                Hit the correct targets and
+                                avoid the wrong ones.
+                            </p>
+
+
+                            <div class="game-card-footer">
+
+                                <span>
+                                    Precision
+                                </span>
+
+                                <button
+                                    class="play-game-button"
+                                    data-game="accuracy"
+                                    type="button"
+                                    aria-label="Play Accuracy"
+                                >
+                                    →
+                                </button>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Logic -->
+
+                        <article
+                            class="game-card"
+                            data-game="logic"
+                        >
+
+                            <div class="game-card-top">
+
+                                <div class="game-icon logic-icon">
+                                    🧩
+                                </div>
+
+                                <span class="game-number">
+                                    04
+                                </span>
+
+                            </div>
+
+
+                            <h3>
+                                Logic
+                            </h3>
+
+                            <p>
+                                Solve short problems and
+                                challenge your reasoning.
+                            </p>
+
+
+                            <div class="game-card-footer">
+
+                                <span>
+                                    Intelligence
+                                </span>
+
+                                <button
+                                    class="play-game-button"
+                                    data-game="logic"
+                                    type="button"
+                                    aria-label="Play Logic"
+                                >
+                                    →
+                                </button>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Speed -->
+
+                        <article
+                            class="game-card"
+                            data-game="speed"
+                        >
+
+                            <div class="game-card-top">
+
+                                <div class="game-icon speed-icon">
+                                    ⏱️
+                                </div>
+
+                                <span class="game-number">
+                                    05
+                                </span>
+
+                            </div>
+
+
+                            <h3>
+                                Speed
+                            </h3>
+
+                            <p>
+                                Complete as many challenges
+                                as possible before time runs out.
+                            </p>
+
+
+                            <div class="game-card-footer">
+
+                                <span>
+                                    Endurance
+                                </span>
+
+                                <button
+                                    class="play-game-button"
+                                    data-game="speed"
+                                    type="button"
+                                    aria-label="Play Speed"
+                                >
+                                    →
+                                </button>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Quick Features -->
+
+                <section class="features-section">
+
+                    <div class="feature">
+
+                        <span class="feature-icon">
+                            📈
+                        </span>
+
+                        <div>
+                            <h3>
+                                Track Progress
+                            </h3>
+
+                            <p>
+                                Monitor your performance
+                                and improve over time.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature">
+
+                        <span class="feature-icon">
+                            🏅
+                        </span>
+
+                        <div>
+                            <h3>
+                                Unlock Achievements
+                            </h3>
+
+                            <p>
+                                Complete challenges and
+                                earn rewards.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature">
+
+                        <span class="feature-icon">
+                            💾
+                        </span>
+
+                        <div>
+                            <h3>
+                                Save Your Progress
+                            </h3>
+
+                            <p>
+                                Your scores are stored
+                                directly on your device.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+
+            <!-- ====================================
+                 GAMES PAGE
+            ==================================== -->
+
+            <section
+                id="gamesPage"
+                class="page"
+                hidden
+            >
+
+                <div class="page-heading">
+
+                    <span class="section-label">
+                        GAME CENTER
+                    </span>
+
+                    <h2>
+                        Training Modes
+                    </h2>
+
+                    <p>
+                        Choose a challenge and test
+                        your abilities.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="gamesPageGrid"
+                    class="game-grid"
+                >
+                    <!-- Generated by JavaScript -->
+                </div>
+
+            </section>
+
+
+            <!-- ====================================
+                 STATISTICS PAGE
+            ==================================== -->
+
+            <section
+                id="statsPage"
+                class="page"
+                hidden
+            >
+
+                <div class="page-heading">
+
+                    <span class="section-label">
+                        PERFORMANCE
+                    </span>
+
+                    <h2>
+                        Your Statistics
+                    </h2>
+
+                    <p>
+                        Analyze your SkillCore performance.
+                    </p>
+
+                </div>
+
+
+                <div class="statistics-grid">
+
+                    <div class="large-stat-card">
+
+                        <span>
+                            Total Score
+                        </span>
+
+                        <strong id="totalScore">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="large-stat-card">
+
+                        <span>
+                            Best Reaction
+                        </span>
+
+                        <strong id="bestReaction">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="large-stat-card">
+
+                        <span>
+                            Accuracy
+                        </span>
+
+                        <strong id="overallAccuracy">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="large-stat-card">
+
+                        <span>
+                            Challenges
+                        </span>
+
+                        <strong id="totalChallenges">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stats-panel">
+
+                    <div class="panel-header">
+
+                        <h3>
+                            Performance Overview
+                        </h3>
+
+                    </div>
+
+                    <div
+                        id="performanceBars"
+                        class="performance-bars"
+                    >
+                        <!-- Generated by JavaScript -->
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ====================================
+                 ACHIEVEMENTS PAGE
+            ==================================== -->
+
+            <section
+                id="achievementsPage"
+                class="page"
+                hidden
+            >
+
+                <div class="page-heading">
+
+                    <span class="section-label">
+                        REWARDS
+                    </span>
+
+                    <h2>
+                        Achievements
+                    </h2>
+
+                    <p>
+                        Complete challenges to unlock
+                        achievements.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="achievementsGrid"
+                    class="achievements-grid"
+                >
+                    <!-- Generated by JavaScript -->
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- ========================================
+             GAME MODAL
+        ======================================== -->
+
+        <div
+            id="gameModal"
+            class="modal"
+            aria-hidden="true"
+        >
+
+            <div
+                class="modal-overlay"
+                data-close-game
+            ></div>
+
+
+            <section
+                class="game-modal-content"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="gameTitle"
+            >
+
+                <!-- Game Header -->
+
+                <header class="game-header">
+
+                    <div>
+
+                        <span
+                            id="gameCategory"
+                            class="section-label"
+                        >
+                            TRAINING
+                        </span>
+
+                        <h2 id="gameTitle">
+                            Game
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        id="closeGameButton"
+                        class="close-button"
+                        type="button"
+                        aria-label="Close game"
+                    >
+                        ×
+                    </button>
+
+                </header>
+
+
+                <!-- Game HUD -->
+
+                <div class="game-hud">
+
+                    <div class="hud-item">
+
+                        <span>
+                            SCORE
+                        </span>
+
+                        <strong id="gameScore">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="hud-item">
+
+                        <span>
+                            TIME
+                        </span>
+
+                        <strong id="gameTimer">
+                            30
+                        </strong>
+
+                    </div>
+
+
+                    <div class="hud-item">
+
+                        <span>
+                            ROUND
+                        </span>
+
+                        <strong id="gameRound">
+                            1
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Game Area -->
+
+                <div
+                    id="gameArea"
+                    class="game-area"
+                >
+
+                    <div class="game-start-screen">
+
+                        <div class="game-start-icon">
+                            🎮
+                        </div>
+
+                        <h3>
+                            Ready?
+                        </h3>
+
+                        <p>
+                            Press start when you're ready
+                            to begin the challenge.
+                        </p>
+
+                        <button
+                            id="startGameButton"
+                            class="primary-button"
+                            type="button"
+                        >
+                            Start Game
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Game Footer -->
+
+                <div class="game-footer">
+
+                    <button
+                        id="pauseGameButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        ⏸ Pause
+                    </button>
+
+                    <button
+                        id="restartGameButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        ↻ Restart
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- ========================================
+             RESULTS MODAL
+        ======================================== -->
+
+        <div
+            id="resultsModal"
+            class="modal"
+            aria-hidden="true"
+        >
+
+            <div
+                class="modal-overlay"
+                data-close-results
+            ></div>
+
+
+            <section
+                class="results-content"
+                role="dialog"
+                aria-modal="true"
+            >
+
+                <div class="results-icon">
+                    🏆
+                </div>
+
+                <span class="section-label">
+                    CHALLENGE COMPLETE
+                </span>
+
+                <h2>
+                    Great Work!
+                </h2>
+
+                <p>
+                    Here is your final result.
+                </p>
+
+
+                <div class="results-score">
+
+                    <span>
+                        SCORE
+                    </span>
+
+                    <strong id="finalScore">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="results-stats">
+
+                    <div>
+                        <span>
+                            Accuracy
+                        </span>
+
+                        <strong id="finalAccuracy">
+                            0%
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>
+                            XP Earned
+                        </span>
+
+                        <strong id="finalXP">
+                            +0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="results-actions">
+
+                    <button
+                        id="playAgainButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        ↻ Play Again
+                    </button>
+
+                    <button
+                        id="backHomeButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        ← Back Home
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- ========================================
+             FOOTER
+        ======================================== -->
+
+        <footer class="footer">
+
+            <span>
+                SkillCore
+            </span>
+
+            <span>
+                •
+            </span>
+
+            <span>
+                Train. Improve. Master.
+            </span>
+
+        </footer>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
