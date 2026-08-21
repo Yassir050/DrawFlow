@@ -1,14 +1,11 @@
 /* ========================================
    SkillCore — Interactive Learning Game
-   JavaScript
+   Final JavaScript
 ======================================== */
-
 "use strict";
-
 /* ========================================
    DATA
 ======================================== */
-
 const questions = {
     javascript: [
         {
@@ -32,7 +29,6 @@ const questions = {
             correct: 2
         }
     ],
-
     html: [
         {
             question: "Which HTML element creates a hyperlink?",
@@ -45,11 +41,15 @@ const questions = {
             correct: 3
         }
     ],
-
     css: [
         {
             question: "Which property changes text color?",
-            answers: ["font-color", "text-color", "color", "foreground"],
+            answers: [
+                "font-color",
+                "text-color",
+                "color",
+                "foreground"
+            ],
             correct: 2
         },
         {
@@ -63,631 +63,550 @@ const questions = {
             correct: 1
         }
     ],
-
     python: [
         {
             question: "Which keyword defines a function in Python?",
-            answers: ["function", "func", "def", "define"],
+            answers: [
+                "function",
+                "func",
+                "def",
+                "define"
+            ],
             correct: 2
         },
         {
             question: "Which symbol starts a comment in Python?",
-            answers: ["//", "<!--", "#", "/*"],
+            answers: [
+                "//",
+                "<!--",
+                "#",
+                "/*"
+            ],
             correct: 2
         }
     ]
 };
-
-
 /* ========================================
    GAME STATE
 ======================================== */
-
 let currentSkill = null;
 let currentQuestion = 0;
 let score = 0;
-let xp = Number(localStorage.getItem("skillcore-xp")) || 0;
-let level = Number(localStorage.getItem("skillcore-level")) || 1;
-let streak = Number(localStorage.getItem("skillcore-streak")) || 0;
-
 let answered = false;
-
-
+let xp =
+    Number(localStorage.getItem("skillcore-xp")) || 0;
+let level =
+    Number(localStorage.getItem("skillcore-level")) || 1;
+let streak =
+    Number(localStorage.getItem("skillcore-streak")) || 0;
 /* ========================================
-   DOM
+   DOM ELEMENTS
 ======================================== */
-
 const quizPanel =
     document.querySelector(".quiz-panel");
-
 const resultPanel =
     document.querySelector(".result-panel");
-
 const questionElement =
     document.querySelector(".question");
-
 const answersElement =
     document.querySelector(".answers");
-
 const quizProgress =
     document.querySelector(".quiz-progress");
-
 const quizScore =
     document.querySelector(".quiz-score");
-
 const xpProgress =
     document.querySelector(".xp-progress");
-
 const playerLevel =
     document.querySelector(".player-level");
-
 const streakNumber =
     document.querySelector(".streak-number");
-
-
-/* ========================================
-   OPTIONAL ELEMENTS
-======================================== */
-
 const resultTitle =
     document.querySelector(".result-panel h2");
-
 const resultText =
     document.querySelector(".result-panel p");
-
 const resultIcon =
     document.querySelector(".result-icon");
-
-
 /* ========================================
    AUDIO
 ======================================== */
-
 let audioContext = null;
-
-
 function getAudioContext() {
-
     if (!audioContext) {
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+        if (!AudioContext) {
+            return null;
+        }
         audioContext =
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
+            new AudioContext();
     }
-
     return audioContext;
 }
-
-
 function playSound(type) {
-
     try {
-
         const context =
             getAudioContext();
-
+        if (!context) {
+            return;
+        }
+        if (context.state === "suspended") {
+            context.resume();
+        }
         const oscillator =
             context.createOscillator();
-
         const gain =
             context.createGain();
-
         oscillator.connect(gain);
         gain.connect(context.destination);
-
         const now =
             context.currentTime;
-
-
-        if (type === "correct") {
-
-            oscillator.frequency.setValueAtTime(
-                520,
-                now
-            );
-
-            oscillator.frequency.exponentialRampToValueAtTime(
-                850,
-                now + 0.15
-            );
-
-        } else if (type === "wrong") {
-
-            oscillator.frequency.setValueAtTime(
-                260,
-                now
-            );
-
-            oscillator.frequency.exponentialRampToValueAtTime(
-                130,
-                now + 0.18
-            );
-
-        } else {
-
-            oscillator.frequency.setValueAtTime(
-                400,
-                now
-            );
-
-            oscillator.frequency.exponentialRampToValueAtTime(
-                650,
-                now + 0.12
-            );
+        switch (type) {
+            case "correct":
+                oscillator.frequency.setValueAtTime(
+                    520,
+                    now
+                );
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    850,
+                    now + 0.15
+                );
+                break;
+            case "wrong":
+                oscillator.frequency.setValueAtTime(
+                    260,
+                    now
+                );
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    130,
+                    now + 0.18
+                );
+                break;
+            case "level":
+                oscillator.frequency.setValueAtTime(
+                    500,
+                    now
+                );
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    1000,
+                    now + 0.3
+                );
+                break;
+            default:
+                oscillator.frequency.setValueAtTime(
+                    400,
+                    now
+                );
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    650,
+                    now + 0.12
+                );
         }
-
-
         gain.gain.setValueAtTime(
             0.0001,
             now
         );
-
         gain.gain.exponentialRampToValueAtTime(
-            0.12,
+            0.1,
             now + 0.01
         );
-
         gain.gain.exponentialRampToValueAtTime(
             0.0001,
             now + 0.2
         );
-
-
         oscillator.start(now);
-        oscillator.stop(now + 0.2);
-
+        oscillator.stop(
+            now + 0.2
+        );
     } catch (error) {
-
-        console.log(
+        console.warn(
             "Audio unavailable:",
             error
         );
     }
 }
-
-
 /* ========================================
-   SAVE
+   SAVE PROGRESS
 ======================================== */
-
 function saveProgress() {
-
     localStorage.setItem(
         "skillcore-xp",
-        xp
+        String(xp)
     );
-
     localStorage.setItem(
         "skillcore-level",
-        level
+        String(level)
     );
-
     localStorage.setItem(
         "skillcore-streak",
-        streak
+        String(streak)
     );
 }
-
-
 /* ========================================
    UPDATE PLAYER
 ======================================== */
-
 function updatePlayer() {
-
     if (playerLevel) {
-
         playerLevel.textContent =
             `Level ${level}`;
     }
-
-
     if (streakNumber) {
-
         streakNumber.textContent =
             streak;
     }
-
-
     if (xpProgress) {
-
-        const xpInsideLevel =
-            xp % 100;
-
+        const xpRequired =
+            level * 100;
+        const progress =
+            Math.min(
+                (xp / xpRequired) * 100,
+                100
+            );
         xpProgress.style.width =
-            `${xpInsideLevel}%`;
+            `${progress}%`;
     }
 }
-
-
 /* ========================================
    ADD XP
 ======================================== */
-
 function addXP(amount) {
-
     xp += amount;
-
-
     while (xp >= level * 100) {
-
         xp -= level * 100;
-
         level++;
-
         showLevelUp();
-
         playSound("level");
     }
-
-
     saveProgress();
-
     updatePlayer();
 }
-
-
 /* ========================================
-   LEVEL UP
+   LEVEL UP EFFECT
 ======================================== */
-
 function showLevelUp() {
-
     document.body.classList.add(
         "level-up"
     );
-
-
+    createLevelUpEffect();
     setTimeout(() => {
-
         document.body.classList.remove(
             "level-up"
         );
-
     }, 700);
 }
-
-
+function createLevelUpEffect() {
+    const element =
+        document.createElement("div");
+    element.textContent =
+        `LEVEL ${level}!`;
+    element.style.position =
+        "fixed";
+    element.style.left =
+        "50%";
+    element.style.top =
+        "30%";
+    element.style.transform =
+        "translate(-50%, -50%) scale(.8)";
+    element.style.zIndex =
+        "10000";
+    element.style.pointerEvents =
+        "none";
+    element.style.color =
+        "#22d3ee";
+    element.style.fontSize =
+        "32px";
+    element.style.fontWeight =
+        "900";
+    element.style.textShadow =
+        "0 0 25px rgba(34,211,238,.6)";
+    document.body.appendChild(
+        element
+    );
+    element.animate(
+        [
+            {
+                opacity: 0,
+                transform:
+                    "translate(-50%, -50%) scale(.7)"
+            },
+            {
+                opacity: 1,
+                transform:
+                    "translate(-50%, -50%) scale(1.1)"
+            },
+            {
+                opacity: 0,
+                transform:
+                    "translate(-50%, -80%) scale(1)"
+            }
+        ],
+        {
+            duration: 900,
+            easing: "ease-out"
+        }
+    );
+    setTimeout(() => {
+        element.remove();
+    }, 900);
+}
 /* ========================================
    START GAME
 ======================================== */
-
 function startGame(skill) {
-
     if (!questions[skill]) {
         console.error(
             `Skill "${skill}" does not exist.`
         );
-
         return;
     }
-
-
     currentSkill = skill;
-
     currentQuestion = 0;
-
     score = 0;
-
     answered = false;
-
-
     if (quizPanel) {
-
         quizPanel.classList.remove(
             "hidden"
         );
-
         quizPanel.scrollIntoView({
             behavior: "smooth",
             block: "center"
         });
     }
-
-
     if (resultPanel) {
-
         resultPanel.classList.add(
             "hidden"
         );
     }
-
-
     playSound("start");
-
     renderQuestion();
 }
-
-
 /* ========================================
    RENDER QUESTION
 ======================================== */
-
 function renderQuestion() {
-
     const quiz =
         questions[currentSkill];
-
-
-    const question =
-        quiz[currentQuestion];
-
-
-    if (!question) {
-
-        finishGame();
-
+    if (!quiz) {
         return;
     }
-
-
+    const question =
+        quiz[currentQuestion];
+    if (!question) {
+        finishGame();
+        return;
+    }
     answered = false;
-
-
     if (questionElement) {
-
         questionElement.textContent =
             question.question;
     }
-
-
     if (quizProgress) {
-
         quizProgress.textContent =
             `${currentQuestion + 1} / ${quiz.length}`;
     }
-
-
     if (quizScore) {
-
         quizScore.textContent =
             `Score: ${score}`;
     }
-
-
     if (!answersElement) {
         return;
     }
-
-
     answersElement.innerHTML = "";
-
-
     question.answers.forEach(
         (answer, index) => {
-
             const button =
-                document.createElement("button");
-
-            button.type = "button";
-
+                document.createElement(
+                    "button"
+                );
+            button.type =
+                "button";
             button.className =
                 "answer-button";
-
             button.textContent =
                 answer;
-
-
+            button.dataset.index =
+                index;
             button.addEventListener(
                 "click",
-                () => checkAnswer(
-                    index,
-                    button
-                )
+                () => {
+                    checkAnswer(
+                        index,
+                        button
+                    );
+                }
             );
-
-
             answersElement.appendChild(
                 button
             );
         }
     );
-
-
     animateQuestion();
 }
-
-
 /* ========================================
    CHECK ANSWER
 ======================================== */
-
 function checkAnswer(
     selectedIndex,
     selectedButton
 ) {
-
     if (answered) {
         return;
     }
-
-
-    answered = true;
-
-
+    if (
+        !currentSkill ||
+        !questions[currentSkill]
+    ) {
+        return;
+    }
     const question =
-        questions[currentSkill][currentQuestion];
-
-
+        questions[currentSkill][
+            currentQuestion
+        ];
+    if (!question) {
+        return;
+    }
+    answered = true;
     const buttons =
-        answersElement.querySelectorAll(
-            ".answer-button"
-        );
-
-
-    buttons.forEach(
+        answersElement
+            ?.querySelectorAll(
+                ".answer-button"
+            );
+    buttons?.forEach(
         button => {
             button.disabled = true;
         }
     );
-
-
-    if (
+    const isCorrect =
         selectedIndex ===
-        question.correct
-    ) {
-
+        question.correct;
+    if (isCorrect) {
         selectedButton.classList.add(
             "correct"
         );
-
-
         score++;
-
         streak++;
-
         addXP(25);
-
         playSound("correct");
-
-
         createParticles(
             selectedButton
         );
-
     } else {
-
         selectedButton.classList.add(
             "wrong"
         );
-
-
-        buttons[
-            question.correct
-        ].classList.add(
-            "correct"
-        );
-
-
+        const correctButton =
+            buttons?.[question.correct];
+        if (correctButton) {
+            correctButton.classList.add(
+                "correct"
+            );
+        }
         streak = 0;
-
-        playSound("wrong");
-
         saveProgress();
-
         updatePlayer();
+        playSound("wrong");
     }
-
-
     if (quizScore) {
-
         quizScore.textContent =
             `Score: ${score}`;
     }
-
-
-    setTimeout(() => {
-
-        currentQuestion++;
-
-        renderQuestion();
-
-    }, 850);
+    setTimeout(
+        () => {
+            currentQuestion++;
+            renderQuestion();
+        },
+        850
+    );
 }
-
-
 /* ========================================
    FINISH GAME
 ======================================== */
-
 function finishGame() {
-
+    if (!currentSkill) {
+        return;
+    }
+    const quiz =
+        questions[currentSkill];
+    const total =
+        quiz.length;
+    const percentage =
+        Math.round(
+            (score / total) * 100
+        );
     if (quizPanel) {
-
         quizPanel.classList.add(
             "hidden"
         );
     }
-
-
     if (resultPanel) {
-
         resultPanel.classList.remove(
             "hidden"
         );
-
         resultPanel.scrollIntoView({
             behavior: "smooth",
             block: "center"
         });
     }
-
-
-    const total =
-        questions[currentSkill].length;
-
-
-    const percentage =
-        Math.round(
-            (score / total) * 100
-        );
-
-
     if (resultTitle) {
-
-        resultTitle.textContent =
-            percentage >= 70
-                ? "Excellent! 🎉"
-                : "Good Work! 💪";
+        if (percentage >= 80) {
+            resultTitle.textContent =
+                "Excellent! 🎉";
+        } else if (percentage >= 50) {
+            resultTitle.textContent =
+                "Good Work! 💪";
+        } else {
+            resultTitle.textContent =
+                "Keep Learning! 🚀";
+        }
     }
-
-
     if (resultText) {
-
         resultText.textContent =
             `You scored ${score}/${total} (${percentage}%).`;
     }
-
-
     if (resultIcon) {
-
-        resultIcon.textContent =
-            percentage >= 70
-                ? "🏆"
-                : "⭐";
+        if (percentage >= 80) {
+            resultIcon.textContent =
+                "🏆";
+        } else if (percentage >= 50) {
+            resultIcon.textContent =
+                "⭐";
+        } else {
+            resultIcon.textContent =
+                "📚";
+        }
     }
-
-
-    playSound(
-        percentage >= 70
-            ? "correct"
-            : "start"
-    );
-
-
-    createConfetti();
+    if (percentage >= 80) {
+        playSound("correct");
+        createConfetti();
+    } else {
+        playSound("start");
+    }
 }
-
-
 /* ========================================
-   RESTART
+   RESTART GAME
 ======================================== */
-
 function restartGame() {
-
     if (!currentSkill) {
         return;
     }
-
-
     startGame(
         currentSkill
     );
 }
-
-
 /* ========================================
    QUESTION ANIMATION
 ======================================== */
-
 function animateQuestion() {
-
     if (!quizPanel) {
         return;
     }
-
-
+    if (
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches
+    ) {
+        return;
+    }
     quizPanel.animate(
         [
             {
@@ -703,71 +622,48 @@ function animateQuestion() {
         ],
         {
             duration: 350,
-            easing: "cubic-bezier(.2,.8,.2,1)"
+            easing:
+                "cubic-bezier(.2,.8,.2,1)"
         }
     );
 }
-
-
 /* ========================================
    3D CARD EFFECT
 ======================================== */
-
 function setup3DCards() {
-
     const cards =
         document.querySelectorAll(
             ".skill-card"
         );
-
-
+    const reduceMotion =
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        );
     cards.forEach(card => {
-
         card.addEventListener(
             "pointermove",
             event => {
-
-                if (
-                    window.matchMedia(
-                        "(prefers-reduced-motion: reduce)"
-                    ).matches
-                ) {
+                if (reduceMotion.matches) {
                     return;
                 }
-
-
                 const rect =
                     card.getBoundingClientRect();
-
-
                 const x =
                     event.clientX -
                     rect.left;
-
-
                 const y =
                     event.clientY -
                     rect.top;
-
-
                 const centerX =
                     rect.width / 2;
-
-
                 const centerY =
                     rect.height / 2;
-
-
                 const rotateY =
                     ((x - centerX) /
                         centerX) * 5;
-
-
                 const rotateX =
                     ((centerY - y) /
                         centerY) * 5;
-
-
                 card.style.transform =
                     `
                     perspective(700px)
@@ -777,66 +673,54 @@ function setup3DCards() {
                     `;
             }
         );
-
-
         card.addEventListener(
             "pointerleave",
             () => {
-
-                card.style.transform = "";
+                card.style.transform =
+                    "";
             }
         );
     });
 }
-
-
 /* ========================================
-   PARTICLES
+   XP PARTICLES
 ======================================== */
-
 function createParticles(element) {
-
+    if (
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches
+    ) {
+        return;
+    }
     const rect =
         element.getBoundingClientRect();
-
-
-    for (let i = 0; i < 8; i++) {
-
+    for (let i = 0; i < 5; i++) {
         const particle =
             document.createElement("span");
-
-        particle.textContent = "+25 XP";
-
+        particle.textContent =
+            "+25 XP";
         particle.style.position =
             "fixed";
-
         particle.style.left =
             `${rect.left + rect.width / 2}px`;
-
         particle.style.top =
             `${rect.top}px`;
-
         particle.style.pointerEvents =
             "none";
-
         particle.style.zIndex =
             "9999";
-
         particle.style.color =
             "#22d3ee";
-
         particle.style.fontWeight =
             "800";
-
+        particle.style.fontSize =
+            "12px";
         document.body.appendChild(
             particle
         );
-
-
         const x =
             (Math.random() - 0.5) * 100;
-
-
         particle.animate(
             [
                 {
@@ -855,63 +739,69 @@ function createParticles(element) {
                 easing: "ease-out"
             }
         );
-
-
-        setTimeout(() => {
-
-            particle.remove();
-
-        }, 700);
+        setTimeout(
+            () => particle.remove(),
+            700
+        );
     }
 }
-
-
 /* ========================================
    CONFETTI
 ======================================== */
-
 function createConfetti() {
-
+    if (
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches
+    ) {
+        return;
+    }
+    const symbols = [
+        "✦",
+        "✧",
+        "◆",
+        "●"
+    ];
+    const colors = [
+        "#6366f1",
+        "#22d3ee",
+        "#22c55e",
+        "#facc15"
+    ];
     for (let i = 0; i < 25; i++) {
-
         const piece =
-            document.createElement("span");
-
-        piece.textContent = "✦";
-
-        piece.style.position =
-            "fixed";
-
-        piece.style.left =
-            `${Math.random() * 100}%`;
-
-        piece.style.top =
-            "-20px";
-
-        piece.style.zIndex =
-            "9999";
-
-        piece.style.pointerEvents =
-            "none";
-
-        piece.style.color =
-            [
-                "#6366f1",
-                "#22d3ee",
-                "#22c55e",
-                "#facc15"
-            ][
+            document.createElement(
+                "span"
+            );
+        piece.textContent =
+            symbols[
                 Math.floor(
-                    Math.random() * 4
+                    Math.random() *
+                    symbols.length
                 )
             ];
-
-
+        piece.style.position =
+            "fixed";
+        piece.style.left =
+            `${Math.random() * 100}%`;
+        piece.style.top =
+            "-20px";
+        piece.style.zIndex =
+            "9999";
+        piece.style.pointerEvents =
+            "none";
+        piece.style.color =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+        piece.style.fontSize =
+            `${10 + Math.random() * 10}px`;
         document.body.appendChild(
             piece
         );
-
-
         piece.animate(
             [
                 {
@@ -929,181 +819,135 @@ function createConfetti() {
                 duration:
                     1200 +
                     Math.random() * 1000,
-
                 easing: "ease-in"
             }
         );
-
-
-        setTimeout(() => {
-
-            piece.remove();
-
-        }, 2300);
+        setTimeout(
+            () => piece.remove(),
+            2300
+        );
     }
 }
-
-
 /* ========================================
-   BUTTONS
+   BUTTON SETUP
 ======================================== */
-
 function setupButtons() {
-
     const playButtons =
         document.querySelectorAll(
             ".play-button"
         );
-
-
-    playButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const skill =
-                    button.dataset.skill ||
-                    button.closest(
-                        ".skill-card"
-                    )?.dataset.skill;
-
-
-                if (skill) {
-
+    playButtons.forEach(
+        button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    const skill =
+                        button.dataset.skill ||
+                        button.closest(
+                            ".skill-card"
+                        )?.dataset.skill;
+                    if (!skill) {
+                        console.warn(
+                            "Missing data-skill."
+                        );
+                        return;
+                    }
                     startGame(skill);
-
-                } else {
-
-                    console.warn(
-                        "Missing data-skill on play button."
-                    );
                 }
-            }
-        );
-    });
-
-
+            );
+        }
+    );
     const restartButtons =
         document.querySelectorAll(
             "[data-restart]"
         );
-
-
-    restartButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            restartGame
-        );
-    });
-
-
+    restartButtons.forEach(
+        button => {
+            button.addEventListener(
+                "click",
+                restartGame
+            );
+        }
+    );
     const resetButtons =
         document.querySelectorAll(
             "[data-reset]"
         );
-
-
-    resetButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            resetProgress
-        );
-    });
+    resetButtons.forEach(
+        button => {
+            button.addEventListener(
+                "click",
+                resetProgress
+            );
+        }
+    );
 }
-
-
 /* ========================================
    RESET PROGRESS
 ======================================== */
-
 function resetProgress() {
-
     const confirmed =
         window.confirm(
             "Reset all SkillCore progress?"
         );
-
-
     if (!confirmed) {
         return;
     }
-
-
     xp = 0;
-
     level = 1;
-
     streak = 0;
-
     score = 0;
-
+    currentSkill = null;
+    currentQuestion = 0;
+    answered = false;
     saveProgress();
-
     updatePlayer();
-
     playSound("start");
+    if (quizPanel) {
+        quizPanel.classList.add(
+            "hidden"
+        );
+    }
+    if (resultPanel) {
+        resultPanel.classList.add(
+            "hidden"
+        );
+    }
 }
-
-
 /* ========================================
-   KEYBOARD
+   KEYBOARD CONTROLS
 ======================================== */
-
 document.addEventListener(
     "keydown",
     event => {
-
         if (!currentSkill) {
             return;
         }
-
-
+        if (answered) {
+            return;
+        }
         const number =
             Number(event.key);
-
-
         if (
             number >= 1 &&
             number <= 4
         ) {
-
             const buttons =
                 answersElement?.querySelectorAll(
                     ".answer-button"
                 );
-
-
-            if (
-                buttons &&
-                buttons[number - 1]
-            ) {
-
-                buttons[number - 1].click();
+            const button =
+                buttons?.[number - 1];
+            if (button) {
+                button.click();
             }
         }
     }
 );
-
-
 /* ========================================
-   INIT
+   PREVENT FORM SUBMISSION
 ======================================== */
-
-function init() {
-
-    updatePlayer();
-
-    setupButtons();
-
-    setup3DCards();
-
-
-    /* Prevent accidental page refresh
-       from submitting forms. */
-
+function preventFormSubmission() {
     document.addEventListener(
         "submit",
         event => {
@@ -1111,9 +955,23 @@ function init() {
         }
     );
 }
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+/* ========================================
+   INITIALIZE
+======================================== */
+function init() {
+    updatePlayer();
+    setupButtons();
+    setup3DCards();
+    preventFormSubmission();
+}
+if (
+    document.readyState ===
+    "loading"
+) {
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
+    );
+} else {
+    init();
+}
