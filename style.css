@@ -1,1174 +1,2518 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="SkillCore is an interactive mini-game platform for testing reaction, memory, accuracy, logic and speed."
-    >
-
-    <meta
-        name="theme-color"
-        content="#080b16"
-    >
-
-    <title>SkillCore — Test Your Skills</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- CSS -->
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-</head>
-
-<body>
-
-    <!-- ========================================
-         APP
-    ======================================== -->
-
-    <div id="app" class="app">
-
-        <!-- ========================================
-             BACKGROUND
-        ======================================== -->
-
-        <div class="background-effects" aria-hidden="true">
-            <div class="gradient-orb orb-one"></div>
-            <div class="gradient-orb orb-two"></div>
-            <div class="grid-overlay"></div>
-        </div>
-
-
-        <!-- ========================================
-             HEADER
-        ======================================== -->
-
-        <header class="topbar">
-
-            <a
-                href="#"
-                class="logo"
-                id="logoButton"
-                aria-label="SkillCore Home"
-            >
-                <span class="logo-mark">
-                    SC
-                </span>
-
-                <span class="logo-text">
-                    SkillCore
-                </span>
-            </a>
-
-
-            <div class="topbar-actions">
-
-                <button
-                    id="soundButton"
-                    class="icon-button"
-                    type="button"
-                    aria-label="Toggle sound"
-                    title="Toggle sound"
-                >
-                    🔊
-                </button>
-
-
-                <button
-                    id="themeButton"
-                    class="icon-button"
-                    type="button"
-                    aria-label="Toggle theme"
-                    title="Toggle theme"
-                >
-                    ◐
-                </button>
-
-
-                <button
-                    id="menuButton"
-                    class="icon-button mobile-only"
-                    type="button"
-                    aria-label="Open menu"
-                    aria-expanded="false"
-                >
-                    ☰
-                </button>
-
-            </div>
-
-        </header>
-
-
-        <!-- ========================================
-             MOBILE MENU
-        ======================================== -->
-
-        <nav
-            id="mobileMenu"
-            class="mobile-menu"
-            aria-hidden="true"
-        >
-
-            <button
-                class="menu-link active"
-                data-page="home"
-                type="button"
-            >
-                🏠 Home
-            </button>
+/* ========================================
+   SkillCore — Interactive Game Platform
+   CSS
+======================================== */
 
-            <button
-                class="menu-link"
-                data-page="games"
-                type="button"
-            >
-                🎮 Games
-            </button>
+/* ========================================
+   DESIGN TOKENS
+======================================== */
 
-            <button
-                class="menu-link"
-                data-page="stats"
-                type="button"
-            >
-                📊 Statistics
-            </button>
+:root {
+    --bg: #070a13;
+    --bg-soft: #0c1020;
+
+    --surface: rgba(17, 24, 39, 0.78);
+    --surface-solid: #111827;
+    --surface-hover: rgba(30, 41, 59, 0.9);
+
+    --text: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --border: rgba(148, 163, 184, 0.14);
+    --border-strong: rgba(148, 163, 184, 0.28);
+
+    --primary: #8b5cf6;
+    --primary-2: #06b6d4;
+    --primary-soft: rgba(139, 92, 246, 0.14);
+
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 26px;
+
+    --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.18);
+    --shadow-md: 0 18px 50px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 30px 90px rgba(0, 0, 0, 0.45);
+
+    --transition: 180ms ease;
+}
+
+
+/* ========================================
+   LIGHT THEME
+======================================== */
+
+body.light {
+    --bg: #f5f7fb;
+    --bg-soft: #eef2ff;
+
+    --surface: rgba(255, 255, 255, 0.86);
+    --surface-solid: #ffffff;
+    --surface-hover: #f1f5f9;
+
+    --text: #111827;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
 
-            <button
-                class="menu-link"
-                data-page="achievements"
-                type="button"
-            >
-                🏆 Achievements
-            </button>
+    --border: rgba(15, 23, 42, 0.10);
+    --border-strong: rgba(15, 23, 42, 0.20);
 
-        </nav>
+    --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 18px 50px rgba(15, 23, 42, 0.12);
+    --shadow-lg: 0 30px 90px rgba(15, 23, 42, 0.16);
+}
 
 
-        <!-- ========================================
-             MAIN
-        ======================================== -->
+/* ========================================
+   RESET
+======================================== */
 
-        <main class="main-content">
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
+html {
+    scroll-behavior: smooth;
+}
 
-            <!-- ====================================
-                 HOME PAGE
-            ==================================== -->
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
 
-            <section
-                id="homePage"
-                class="page active"
-            >
+    background: var(--bg);
+    color: var(--text);
 
-                <!-- Hero -->
+    font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 
-                <section class="hero">
+    line-height: 1.5;
 
-                    <div class="hero-content">
+    transition:
+        background-color 220ms ease,
+        color 220ms ease;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid rgba(139, 92, 246, 0.45);
+    outline-offset: 3px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ========================================
+   APP
+======================================== */
+
+.app {
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+}
 
-                        <span class="eyebrow">
-                            PERFORMANCE TRAINING
-                        </span>
 
-                        <h1>
-                            Test your
-                            <span class="gradient-text">
-                                limits.
-                            </span>
-                        </h1>
+/* ========================================
+   BACKGROUND
+======================================== */
 
-                        <p class="hero-description">
-                            Challenge your reaction,
-                            memory, accuracy, logic and speed
-                            through interactive mini-games.
-                        </p>
+.background-effects {
+    position: fixed;
+    inset: 0;
 
+    overflow: hidden;
+    pointer-events: none;
 
-                        <div class="hero-actions">
+    z-index: -2;
+}
 
-                            <button
-                                id="playButton"
-                                class="primary-button"
-                                type="button"
-                            >
-                                ▶ Start Training
-                            </button>
+.gradient-orb {
+    position: absolute;
 
-                            <button
-                                id="gamesButton"
-                                class="secondary-button"
-                                type="button"
-                            >
-                                Explore Games
-                            </button>
+    width: 420px;
+    height: 420px;
 
-                        </div>
+    border-radius: 50%;
 
-                    </div>
+    filter: blur(90px);
+    opacity: 0.18;
 
+    animation:
+        floatOrb 12s ease-in-out infinite;
+}
 
-                    <!-- Player Core -->
+.orb-one {
+    top: -180px;
+    left: -120px;
+    background: #8b5cf6;
+}
 
-                    <div class="core-container">
+.orb-two {
+    right: -150px;
+    bottom: -180px;
 
-                        <div class="core-glow"></div>
+    background: #06b6d4;
 
-                        <div
-                            class="skill-core"
-                            id="skillCore"
-                        >
+    animation-delay: -5s;
+}
 
-                            <div class="core-ring ring-one"></div>
-                            <div class="core-ring ring-two"></div>
-                            <div class="core-ring ring-three"></div>
+.grid-overlay {
+    position: absolute;
+    inset: 0;
 
-                            <div class="core-center">
-                                <span>
-                                    SC
-                                </span>
-                            </div>
+    background-image:
+        linear-gradient(
+            rgba(148, 163, 184, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(148, 163, 184, 0.035) 1px,
+            transparent 1px
+        );
 
-                        </div>
+    background-size: 50px 50px;
 
-                    </div>
+    mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 80%
+        );
+}
 
-                </section>
+@keyframes floatOrb {
 
+    0%,
+    100% {
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+    }
 
-                <!-- Player Stats -->
+    50% {
+        transform:
+            translate3d(30px, -25px, 0)
+            scale(1.08);
+    }
+}
 
-                <section
-                    class="player-overview"
-                    aria-label="Player statistics"
-                >
 
-                    <div class="overview-card">
+/* ========================================
+   TOPBAR
+======================================== */
 
-                        <span class="overview-icon">
-                            ⚡
-                        </span>
+.topbar {
+    position: sticky;
 
-                        <div>
-                            <span class="overview-label">
-                                Level
-                            </span>
+    top: 0;
 
-                            <strong id="playerLevel">
-                                1
-                            </strong>
-                        </div>
+    height: 72px;
 
-                    </div>
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
+    gap: 20px;
 
-                    <div class="overview-card">
+    padding: 0 28px;
 
-                        <span class="overview-icon">
-                            XP
-                        </span>
+    background:
+        color-mix(
+            in srgb,
+            var(--bg) 78%,
+            transparent
+        );
 
-                        <div>
-                            <span class="overview-label">
-                                Experience
-                            </span>
+    border-bottom: 1px solid var(--border);
 
-                            <strong id="playerXP">
-                                0
-                            </strong>
-                        </div>
+    backdrop-filter: blur(18px);
 
-                    </div>
+    z-index: 100;
+}
 
 
-                    <div class="overview-card">
+/* ========================================
+   LOGO
+======================================== */
 
-                        <span class="overview-icon">
-                            🏆
-                        </span>
+.logo {
+    display: flex;
+    align-items: center;
 
-                        <div>
-                            <span class="overview-label">
-                                Best Score
-                            </span>
+    gap: 10px;
 
-                            <strong id="bestScore">
-                                0
-                            </strong>
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
 
-                        </div>
+.logo-mark {
+    width: 38px;
+    height: 38px;
 
-                    </div>
+    display: grid;
+    place-items: center;
 
+    border-radius: 12px;
 
-                    <div class="overview-card">
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-2)
+        );
 
-                        <span class="overview-icon">
-                            🎮
-                        </span>
+    color: white;
 
-                        <div>
-                            <span class="overview-label">
-                                Games Played
-                            </span>
+    font-size: 12px;
 
-                            <strong id="gamesPlayed">
-                                0
-                            </strong>
+    box-shadow:
+        0 8px 25px
+        rgba(139, 92, 246, 0.28);
 
-                        </div>
+    transition:
+        transform 220ms ease;
+}
 
-                    </div>
+.logo:hover .logo-mark {
+    transform:
+        perspective(500px)
+        rotateX(12deg)
+        rotateY(-12deg)
+        translateY(-2px);
+}
 
-                </section>
+.logo-text {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
+    font-size: 19px;
+}
 
-                <!-- Game Modes -->
 
-                <section class="games-section">
+/* ========================================
+   TOPBAR ACTIONS
+======================================== */
 
-                    <div class="section-header">
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-                        <div>
 
-                            <span class="section-label">
-                                TRAINING MODES
-                            </span>
+/* ========================================
+   BUTTONS
+======================================== */
 
-                            <h2>
-                                Choose your challenge
-                            </h2>
+.icon-button {
+    width: 40px;
+    height: 40px;
 
-                        </div>
+    display: grid;
+    place-items: center;
 
-                        <span
-                            id="gameCount"
-                            class="section-count"
-                        >
-                            5 modes
-                        </span>
+    border: 1px solid var(--border);
+    border-radius: 12px;
 
-                    </div>
+    background: var(--surface);
+    color: var(--text);
 
+    backdrop-filter: blur(10px);
 
-                    <div class="game-grid">
+    transition:
+        transform var(--transition),
+        background-color var(--transition),
+        border-color var(--transition);
+}
 
+.icon-button:hover {
+    transform: translateY(-2px);
 
-                        <!-- Reaction -->
+    background: var(--surface-hover);
 
-                        <article
-                            class="game-card"
-                            data-game="reaction"
-                        >
+    border-color: var(--border-strong);
+}
 
-                            <div class="game-card-top">
+.primary-button,
+.secondary-button {
+    min-height: 44px;
 
-                                <div class="game-icon reaction-icon">
-                                    ⚡
-                                </div>
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-                                <span class="game-number">
-                                    01
-                                </span>
+    gap: 8px;
 
-                            </div>
+    padding: 0 18px;
 
+    border-radius: 12px;
 
-                            <h3>
-                                Reaction
-                            </h3>
+    font-size: 13px;
+    font-weight: 700;
 
-                            <p>
-                                Test how quickly you can react
-                                when the target appears.
-                            </p>
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        background-color var(--transition);
+}
 
+.primary-button {
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            #6366f1
+        );
 
-                            <div class="game-card-footer">
+    color: white;
 
-                                <span>
-                                    Speed
-                                </span>
+    box-shadow:
+        0 10px 30px
+        rgba(99, 102, 241, 0.28);
+}
 
-                                <button
-                                    class="play-game-button"
-                                    data-game="reaction"
-                                    type="button"
-                                    aria-label="Play Reaction"
-                                >
-                                    →
-                                </button>
+.primary-button:hover {
+    transform: translateY(-2px);
 
-                            </div>
+    box-shadow:
+        0 15px 40px
+        rgba(99, 102, 241, 0.38);
+}
 
-                        </article>
+.primary-button:active {
+    transform: translateY(0) scale(0.98);
+}
 
+.secondary-button {
+    border: 1px solid var(--border);
 
-                        <!-- Memory -->
+    background: var(--surface);
+    color: var(--text);
 
-                        <article
-                            class="game-card"
-                            data-game="memory"
-                        >
+    backdrop-filter: blur(10px);
+}
 
-                            <div class="game-card-top">
+.secondary-button:hover {
+    transform: translateY(-2px);
 
-                                <div class="game-icon memory-icon">
-                                    🧠
-                                </div>
+    background: var(--surface-hover);
 
-                                <span class="game-number">
-                                    02
-                                </span>
+    border-color: var(--border-strong);
+}
 
-                            </div>
 
+/* ========================================
+   MOBILE MENU
+======================================== */
 
-                            <h3>
-                                Memory
-                            </h3>
+.mobile-menu {
+    display: none;
 
-                            <p>
-                                Remember the sequence and
-                                reproduce it correctly.
-                            </p>
+    position: fixed;
 
+    top: 78px;
+    right: 12px;
 
-                            <div class="game-card-footer">
+    width:
+        min(
+            240px,
+            calc(100% - 24px)
+        );
 
-                                <span>
-                                    Memory
-                                </span>
+    padding: 8px;
 
-                                <button
-                                    class="play-game-button"
-                                    data-game="memory"
-                                    type="button"
-                                    aria-label="Play Memory"
-                                >
-                                    →
-                                </button>
+    border: 1px solid var(--border);
+    border-radius: 16px;
 
-                            </div>
+    background: var(--surface-solid);
 
-                        </article>
+    box-shadow: var(--shadow-lg);
 
+    z-index: 200;
+}
 
-                        <!-- Accuracy -->
+.mobile-menu.open {
+    display: flex;
+    flex-direction: column;
 
-                        <article
-                            class="game-card"
-                            data-game="accuracy"
-                        >
+    animation:
+        menuIn 180ms ease;
+}
 
-                            <div class="game-card-top">
+.menu-link {
+    width: 100%;
+    min-height: 44px;
 
-                                <div class="game-icon accuracy-icon">
-                                    🎯
-                                </div>
+    padding: 0 12px;
 
-                                <span class="game-number">
-                                    03
-                                </span>
+    display: flex;
+    align-items: center;
 
-                            </div>
+    gap: 10px;
 
+    border-radius: 10px;
 
-                            <h3>
-                                Accuracy
-                            </h3>
+    background: transparent;
 
-                            <p>
-                                Hit the correct targets and
-                                avoid the wrong ones.
-                            </p>
+    color: var(--text-secondary);
 
+    text-align: left;
 
-                            <div class="game-card-footer">
+    font-size: 13px;
+    font-weight: 600;
+}
 
-                                <span>
-                                    Precision
-                                </span>
+.menu-link:hover,
+.menu-link.active {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
 
-                                <button
-                                    class="play-game-button"
-                                    data-game="accuracy"
-                                    type="button"
-                                    aria-label="Play Accuracy"
-                                >
-                                    →
-                                </button>
+@keyframes menuIn {
 
-                            </div>
+    from {
+        opacity: 0;
+        transform:
+            translateY(-8px)
+            scale(0.97);
+    }
 
-                        </article>
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
 
 
-                        <!-- Logic -->
+/* ========================================
+   MAIN
+======================================== */
 
-                        <article
-                            class="game-card"
-                            data-game="logic"
-                        >
+.main-content {
+    width:
+        min(
+            1180px,
+            calc(100% - 40px)
+        );
 
-                            <div class="game-card-top">
+    margin: 0 auto;
+}
 
-                                <div class="game-icon logic-icon">
-                                    🧩
-                                </div>
+.page {
+    min-height:
+        calc(100vh - 72px);
 
-                                <span class="game-number">
-                                    04
-                                </span>
+    padding: 60px 0;
+}
 
-                            </div>
 
+/* ========================================
+   HERO
+======================================== */
 
-                            <h3>
-                                Logic
-                            </h3>
+.hero {
+    min-height: 500px;
 
-                            <p>
-                                Solve short problems and
-                                challenge your reasoning.
-                            </p>
+    display: grid;
 
+    grid-template-columns:
+        minmax(0, 1.1fr)
+        minmax(300px, 0.9fr);
 
-                            <div class="game-card-footer">
+    align-items: center;
 
-                                <span>
-                                    Intelligence
-                                </span>
+    gap: 40px;
+}
 
-                                <button
-                                    class="play-game-button"
-                                    data-game="logic"
-                                    type="button"
-                                    aria-label="Play Logic"
-                                >
-                                    →
-                                </button>
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
 
-                            </div>
+.eyebrow,
+.section-label {
+    display: inline-block;
 
-                        </article>
+    margin-bottom: 10px;
 
+    color: var(--primary);
 
-                        <!-- Speed -->
+    font-size: 10px;
+    font-weight: 800;
 
-                        <article
-                            class="game-card"
-                            data-game="speed"
-                        >
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
 
-                            <div class="game-card-top">
+.hero h1 {
+    max-width: 700px;
 
-                                <div class="game-icon speed-icon">
-                                    ⏱️
-                                </div>
+    margin-bottom: 18px;
 
-                                <span class="game-number">
-                                    05
-                                </span>
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
-                            </div>
+    font-size:
+        clamp(
+            44px,
+            7vw,
+            76px
+        );
 
+    line-height: 0.98;
 
-                            <h3>
-                                Speed
-                            </h3>
+    letter-spacing: -0.06em;
+}
 
-                            <p>
-                                Complete as many challenges
-                                as possible before time runs out.
-                            </p>
+.gradient-text {
+    background:
+        linear-gradient(
+            90deg,
+            #a78bfa,
+            #22d3ee
+        );
 
+    -webkit-background-clip: text;
+    background-clip: text;
 
-                            <div class="game-card-footer">
+    color: transparent;
+}
 
-                                <span>
-                                    Endurance
-                                </span>
+.hero-description {
+    max-width: 580px;
 
-                                <button
-                                    class="play-game-button"
-                                    data-game="speed"
-                                    type="button"
-                                    aria-label="Play Speed"
-                                >
-                                    →
-                                </button>
+    margin-bottom: 28px;
 
-                            </div>
+    color: var(--text-secondary);
 
-                        </article>
+    font-size: 15px;
 
-                    </div>
+    line-height: 1.8;
+}
 
-                </section>
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
 
+    gap: 10px;
+}
 
-                <!-- Quick Features -->
 
-                <section class="features-section">
+/* ========================================
+   3D CORE
+======================================== */
 
-                    <div class="feature">
+.core-container {
+    position: relative;
 
-                        <span class="feature-icon">
-                            📈
-                        </span>
+    min-height: 390px;
 
-                        <div>
-                            <h3>
-                                Track Progress
-                            </h3>
+    display: grid;
+    place-items: center;
 
-                            <p>
-                                Monitor your performance
-                                and improve over time.
-                            </p>
-                        </div>
+    perspective: 900px;
+}
 
-                    </div>
+.core-glow {
+    position: absolute;
 
+    width: 240px;
+    height: 240px;
 
-                    <div class="feature">
+    border-radius: 50%;
 
-                        <span class="feature-icon">
-                            🏅
-                        </span>
+    background:
+        radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.35),
+            transparent 70%
+        );
 
-                        <div>
-                            <h3>
-                                Unlock Achievements
-                            </h3>
+    filter: blur(25px);
+}
 
-                            <p>
-                                Complete challenges and
-                                earn rewards.
-                            </p>
-                        </div>
+.skill-core {
+    position: relative;
 
-                    </div>
+    width: 250px;
+    height: 250px;
 
+    display: grid;
+    place-items: center;
 
-                    <div class="feature">
+    transform-style: preserve-3d;
 
-                        <span class="feature-icon">
-                            💾
-                        </span>
+    animation:
+        coreFloat 5s ease-in-out infinite;
 
-                        <div>
-                            <h3>
-                                Save Your Progress
-                            </h3>
+    filter:
+        drop-shadow(
+            0 25px 40px
+            rgba(99, 102, 241, 0.28)
+        );
+}
 
-                            <p>
-                                Your scores are stored
-                                directly on your device.
-                            </p>
-                        </div>
+.core-ring {
+    position: absolute;
 
-                    </div>
+    border-radius: 50%;
 
-                </section>
+    border:
+        1px solid
+        rgba(139, 92, 246, 0.5);
 
-            </section>
+    transform-style: preserve-3d;
+}
 
+.ring-one {
+    inset: 0;
 
-            <!-- ====================================
-                 GAMES PAGE
-            ==================================== -->
+    animation:
+        spin 10s linear infinite;
+}
 
-            <section
-                id="gamesPage"
-                class="page"
-                hidden
-            >
+.ring-two {
+    inset: 24px;
 
-                <div class="page-heading">
+    border-color:
+        rgba(34, 211, 238, 0.5);
 
-                    <span class="section-label">
-                        GAME CENTER
-                    </span>
+    animation:
+        spinReverse 7s linear infinite;
+}
 
-                    <h2>
-                        Training Modes
-                    </h2>
+.ring-three {
+    inset: 48px;
 
-                    <p>
-                        Choose a challenge and test
-                        your abilities.
-                    </p>
+    border-style: dashed;
 
-                </div>
+    animation:
+        spin 5s linear infinite;
+}
 
+.core-center {
+    width: 105px;
+    height: 105px;
 
-                <div
-                    id="gamesPageGrid"
-                    class="game-grid"
-                >
-                    <!-- Generated by JavaScript -->
-                </div>
+    display: grid;
+    place-items: center;
 
-            </section>
+    border-radius: 30px;
 
+    background:
+        linear-gradient(
+            145deg,
+            rgba(139, 92, 246, 0.95),
+            rgba(6, 182, 212, 0.8)
+        );
 
-            <!-- ====================================
-                 STATISTICS PAGE
-            ==================================== -->
+    color: white;
 
-            <section
-                id="statsPage"
-                class="page"
-                hidden
-            >
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
-                <div class="page-heading">
+    font-size: 26px;
+    font-weight: 800;
 
-                    <span class="section-label">
-                        PERFORMANCE
-                    </span>
+    box-shadow:
+        inset
+        0 1px 0
+        rgba(255,255,255,0.25),
 
-                    <h2>
-                        Your Statistics
-                    </h2>
+        0 20px 60px
+        rgba(99,102,241,0.35);
 
-                    <p>
-                        Analyze your SkillCore performance.
-                    </p>
+    transform:
+        translateZ(50px)
+        rotateX(8deg)
+        rotateY(-8deg);
+}
 
-                </div>
+@keyframes coreFloat {
 
+    0%,
+    100% {
+        transform:
+            translate3d(0,0,0)
+            rotateX(4deg)
+            rotateY(-5deg);
+    }
 
-                <div class="statistics-grid">
+    50% {
+        transform:
+            translate3d(0,-12px,0)
+            rotateX(-3deg)
+            rotateY(7deg);
+    }
+}
 
-                    <div class="large-stat-card">
+@keyframes spin {
 
-                        <span>
-                            Total Score
-                        </span>
+    from {
+        transform: rotateZ(0deg);
+    }
 
-                        <strong id="totalScore">
-                            0
-                        </strong>
+    to {
+        transform: rotateZ(360deg);
+    }
+}
 
-                    </div>
+@keyframes spinReverse {
 
+    from {
+        transform: rotateZ(360deg);
+    }
 
-                    <div class="large-stat-card">
+    to {
+        transform: rotateZ(0deg);
+    }
+}
 
-                        <span>
-                            Best Reaction
-                        </span>
 
-                        <strong id="bestReaction">
-                            —
-                        </strong>
+/* ========================================
+   PLAYER OVERVIEW
+======================================== */
 
-                    </div>
+.player-overview {
+    display: grid;
 
+    grid-template-columns:
+        repeat(4, 1fr);
 
-                    <div class="large-stat-card">
+    gap: 12px;
 
-                        <span>
-                            Accuracy
-                        </span>
+    margin-bottom: 70px;
+}
 
-                        <strong id="overallAccuracy">
-                            0%
-                        </strong>
+.overview-card {
+    min-height: 88px;
 
-                    </div>
+    display: flex;
+    align-items: center;
 
+    gap: 12px;
 
-                    <div class="large-stat-card">
+    padding: 16px;
 
-                        <span>
-                            Challenges
-                        </span>
+    border: 1px solid var(--border);
+    border-radius: 16px;
 
-                        <strong id="totalChallenges">
-                            0
-                        </strong>
+    background: var(--surface);
 
-                    </div>
+    box-shadow: var(--shadow-sm);
 
-                </div>
+    backdrop-filter: blur(12px);
 
+    transition:
+        transform var(--transition),
+        border-color var(--transition);
+}
 
-                <div class="stats-panel">
+.overview-card:hover {
+    transform:
+        translateY(-4px)
+        perspective(500px)
+        rotateX(2deg);
 
-                    <div class="panel-header">
+    border-color:
+        var(--border-strong);
+}
 
-                        <h3>
-                            Performance Overview
-                        </h3>
+.overview-icon {
+    width: 40px;
+    height: 40px;
 
-                    </div>
+    display: grid;
+    place-items: center;
 
-                    <div
-                        id="performanceBars"
-                        class="performance-bars"
-                    >
-                        <!-- Generated by JavaScript -->
-                    </div>
+    flex: 0 0 auto;
 
-                </div>
+    border-radius: 11px;
 
-            </section>
+    background: var(--primary-soft);
 
+    color: var(--primary);
 
-            <!-- ====================================
-                 ACHIEVEMENTS PAGE
-            ==================================== -->
+    font-size: 13px;
+    font-weight: 800;
+}
 
-            <section
-                id="achievementsPage"
-                class="page"
-                hidden
-            >
+.overview-label {
+    display: block;
 
-                <div class="page-heading">
+    margin-bottom: 2px;
 
-                    <span class="section-label">
-                        REWARDS
-                    </span>
+    color: var(--text-muted);
 
-                    <h2>
-                        Achievements
-                    </h2>
+    font-size: 10px;
+    font-weight: 700;
 
-                    <p>
-                        Complete challenges to unlock
-                        achievements.
-                    </p>
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
 
-                </div>
+.overview-card strong {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
+    font-size: 22px;
+}
 
-                <div
-                    id="achievementsGrid"
-                    class="achievements-grid"
-                >
-                    <!-- Generated by JavaScript -->
-                </div>
 
-            </section>
+/* ========================================
+   SECTION HEADERS
+======================================== */
 
-        </main>
+.section-header {
+    display: flex;
 
+    align-items: flex-end;
+    justify-content: space-between;
 
-        <!-- ========================================
-             GAME MODAL
-        ======================================== -->
+    gap: 20px;
 
-        <div
-            id="gameModal"
-            class="modal"
-            aria-hidden="true"
-        >
+    margin-bottom: 18px;
+}
 
-            <div
-                class="modal-overlay"
-                data-close-game
-            ></div>
+.section-header h2,
+.page-heading h2 {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
+    font-size:
+        clamp(
+            25px,
+            4vw,
+            34px
+        );
 
-            <section
-                class="game-modal-content"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="gameTitle"
-            >
+    line-height: 1.1;
 
-                <!-- Game Header -->
+    letter-spacing: -0.04em;
+}
 
-                <header class="game-header">
+.section-count {
+    color: var(--text-muted);
 
-                    <div>
+    font-size: 12px;
+    font-weight: 600;
+}
 
-                        <span
-                            id="gameCategory"
-                            class="section-label"
-                        >
-                            TRAINING
-                        </span>
 
-                        <h2 id="gameTitle">
-                            Game
-                        </h2>
+/* ========================================
+   GAME GRID
+======================================== */
 
-                    </div>
+.game-grid {
+    display: grid;
 
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
 
-                    <button
-                        id="closeGameButton"
-                        class="close-button"
-                        type="button"
-                        aria-label="Close game"
-                    >
-                        ×
-                    </button>
+    gap: 14px;
+}
 
-                </header>
+.game-card {
+    position: relative;
 
+    min-height: 245px;
 
-                <!-- Game HUD -->
+    display: flex;
+    flex-direction: column;
 
-                <div class="game-hud">
+    padding: 20px;
 
-                    <div class="hud-item">
+    overflow: hidden;
 
-                        <span>
-                            SCORE
-                        </span>
+    border: 1px solid var(--border);
+    border-radius: 20px;
 
-                        <strong id="gameScore">
-                            0
-                        </strong>
+    background:
+        linear-gradient(
+            145deg,
+            var(--surface),
+            rgba(15,23,42,0.55)
+        );
 
-                    </div>
+    box-shadow: var(--shadow-sm);
 
+    backdrop-filter: blur(14px);
 
-                    <div class="hud-item">
+    transform:
+        perspective(800px)
+        rotateX(0)
+        translateZ(0);
 
-                        <span>
-                            TIME
-                        </span>
+    transition:
+        transform 250ms ease,
+        border-color 250ms ease,
+        box-shadow 250ms ease;
+}
 
-                        <strong id="gameTimer">
-                            30
-                        </strong>
+.game-card::before {
+    content: "";
 
-                    </div>
+    position: absolute;
 
+    width: 130px;
+    height: 130px;
 
-                    <div class="hud-item">
+    right: -60px;
+    top: -60px;
 
-                        <span>
-                            ROUND
-                        </span>
+    border-radius: 50%;
 
-                        <strong id="gameRound">
-                            1
-                        </strong>
+    background:
+        radial-gradient(
+            circle,
+            rgba(139,92,246,0.18),
+            transparent 70%
+        );
 
-                    </div>
+    transition:
+        transform 300ms ease;
+}
 
-                </div>
+.game-card:hover {
+    transform:
+        perspective(800px)
+        rotateX(3deg)
+        rotateY(-2deg)
+        translateY(-6px);
 
+    border-color:
+        rgba(139,92,246,0.4);
 
-                <!-- Game Area -->
+    box-shadow:
+        0 25px 60px
+        rgba(0,0,0,0.28);
+}
 
-                <div
-                    id="gameArea"
-                    class="game-area"
-                >
+.game-card:hover::before {
+    transform: scale(1.5);
+}
 
-                    <div class="game-start-screen">
+.game-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-                        <div class="game-start-icon">
-                            🎮
-                        </div>
+    margin-bottom: 24px;
+}
 
-                        <h3>
-                            Ready?
-                        </h3>
+.game-icon {
+    width: 48px;
+    height: 48px;
 
-                        <p>
-                            Press start when you're ready
-                            to begin the challenge.
-                        </p>
+    display: grid;
+    place-items: center;
 
-                        <button
-                            id="startGameButton"
-                            class="primary-button"
-                            type="button"
-                        >
-                            Start Game
-                        </button>
+    border-radius: 14px;
 
-                    </div>
+    background:
+        var(--primary-soft);
 
-                </div>
+    font-size: 20px;
 
+    box-shadow:
+        inset
+        0 1px 0
+        rgba(255,255,255,0.08);
+}
 
-                <!-- Game Footer -->
+.game-number {
+    color: var(--text-muted);
 
-                <div class="game-footer">
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
-                    <button
-                        id="pauseGameButton"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        ⏸ Pause
-                    </button>
+    font-size: 12px;
+    font-weight: 700;
+}
 
-                    <button
-                        id="restartGameButton"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        ↻ Restart
-                    </button>
+.game-card h3 {
+    margin-bottom: 8px;
 
-                </div>
+    font-family:
+        "Space Grotesk",
+        sans-serif;
 
-            </section>
+    font-size: 20px;
+}
 
-        </div>
+.game-card p {
+    color: var(--text-secondary);
 
+    font-size: 12px;
 
-        <!-- ========================================
-             RESULTS MODAL
-        ======================================== -->
+    line-height: 1.7;
+}
 
-        <div
-            id="resultsModal"
-            class="modal"
-            aria-hidden="true"
-        >
+.game-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-            <div
-                class="modal-overlay"
-                data-close-results
-            ></div>
+    gap: 10px;
 
+    margin-top: auto;
+    padding-top: 20px;
+}
 
-            <section
-                class="results-content"
-                role="dialog"
-                aria-modal="true"
-            >
+.game-card-footer > span {
+    padding: 5px 9px;
 
-                <div class="results-icon">
-                    🏆
-                </div>
+    border: 1px solid var(--border);
+    border-radius: 7px;
 
-                <span class="section-label">
-                    CHALLENGE COMPLETE
-                </span>
+    color: var(--text-muted);
 
-                <h2>
-                    Great Work!
-                </h2>
+    font-size: 10px;
+    font-weight: 700;
+}
 
-                <p>
-                    Here is your final result.
-                </p>
+.play-game-button {
+    width: 36px;
+    height: 36px;
 
+    display: grid;
+    place-items: center;
 
-                <div class="results-score">
+    border-radius: 10px;
 
-                    <span>
-                        SCORE
-                    </span>
+    background: var(--primary-soft);
 
-                    <strong id="finalScore">
-                        0
-                    </strong>
+    color: var(--primary);
 
-                </div>
+    font-size: 18px;
 
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease;
+}
 
-                <div class="results-stats">
+.play-game-button:hover {
+    transform: translateX(3px);
 
-                    <div>
-                        <span>
-                            Accuracy
-                        </span>
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            #6366f1
+        );
 
-                        <strong id="finalAccuracy">
-                            0%
-                        </strong>
-                    </div>
+    color: white;
+}
 
 
-                    <div>
-                        <span>
-                            XP Earned
-                        </span>
+/* ========================================
+   FEATURES
+======================================== */
 
-                        <strong id="finalXP">
-                            +0
-                        </strong>
-                    </div>
+.features-section {
+    display: grid;
 
-                </div>
+    grid-template-columns:
+        repeat(3, 1fr);
 
+    gap: 14px;
 
-                <div class="results-actions">
+    margin-top: 70px;
+}
 
-                    <button
-                        id="playAgainButton"
-                        class="primary-button"
-                        type="button"
-                    >
-                        ↻ Play Again
-                    </button>
+.feature {
+    display: flex;
 
-                    <button
-                        id="backHomeButton"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        ← Back Home
-                    </button>
+    gap: 12px;
 
-                </div>
+    padding: 18px;
 
-            </section>
+    border: 1px solid var(--border);
+    border-radius: 16px;
 
-        </div>
+    background: var(--surface);
+}
 
+.feature-icon {
+    width: 38px;
+    height: 38px;
 
-        <!-- ========================================
-             FOOTER
-        ======================================== -->
+    display: grid;
+    place-items: center;
 
-        <footer class="footer">
+    flex: 0 0 auto;
 
-            <span>
-                SkillCore
-            </span>
+    border-radius: 10px;
 
-            <span>
-                •
-            </span>
+    background: var(--primary-soft);
 
-            <span>
-                Train. Improve. Master.
-            </span>
+    font-size: 16px;
+}
 
-        </footer>
+.feature h3 {
+    margin-bottom: 4px;
 
-    </div>
+    font-size: 13px;
+}
 
+.feature p {
+    color: var(--text-secondary);
 
-    <!-- JavaScript -->
-    <script src="script.js"></script>
+    font-size: 11px;
 
-</body>
-</html>
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   PAGE HEADING
+======================================== */
+
+.page-heading {
+    margin-bottom: 32px;
+}
+
+.page-heading p {
+    margin-top: 10px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   STATISTICS
+======================================== */
+
+.statistics-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 24px;
+}
+
+.large-stat-card {
+    padding: 22px;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    background: var(--surface);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.large-stat-card span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.large-stat-card strong {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 30px;
+}
+
+.stats-panel {
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    background: var(--surface);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.panel-header {
+    margin-bottom: 24px;
+}
+
+.panel-header h3 {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 17px;
+}
+
+.performance-bars {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+.performance-row {
+    display: grid;
+
+    grid-template-columns:
+        100px 1fr 45px;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.performance-label {
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.performance-track {
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: var(--surface-hover);
+}
+
+.performance-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            var(--primary-2)
+        );
+
+    transition:
+        width 500ms ease;
+}
+
+.performance-value {
+    color: var(--text);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: right;
+}
+
+
+/* ========================================
+   ACHIEVEMENTS
+======================================== */
+
+.achievements-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 14px;
+}
+
+.achievement-card {
+    padding: 22px;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    background: var(--surface);
+
+    transition:
+        transform 200ms ease,
+        border-color 200ms ease;
+}
+
+.achievement-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        var(--border-strong);
+}
+
+.achievement-card.locked {
+    opacity: 0.48;
+}
+
+.achievement-icon {
+    width: 52px;
+    height: 52px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 16px;
+
+    border-radius: 15px;
+
+    background: var(--primary-soft);
+
+    font-size: 22px;
+}
+
+.achievement-card h3 {
+    margin-bottom: 5px;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 16px;
+}
+
+.achievement-card p {
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* ========================================
+   MODAL
+======================================== */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 14px;
+
+    z-index: 1000;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(2,6,23,0.78);
+
+    backdrop-filter: blur(10px);
+}
+
+.game-modal-content,
+.results-content {
+    position: relative;
+
+    width:
+        min(
+            760px,
+            100%
+        );
+
+    max-height:
+        calc(
+            100vh - 28px
+        );
+
+    overflow-y: auto;
+
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 24px;
+
+    background: var(--surface-solid);
+
+    box-shadow: var(--shadow-lg);
+
+    z-index: 1;
+
+    animation:
+        modalIn 220ms ease;
+}
+
+@keyframes modalIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+/* ========================================
+   GAME HEADER
+======================================== */
+
+.game-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+.game-header h2 {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 27px;
+}
+
+.close-button {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--surface-hover);
+
+    color: var(--text-secondary);
+
+    font-size: 23px;
+}
+
+.close-button:hover {
+    color: var(--text);
+    background: var(--border);
+}
+
+
+/* ========================================
+   GAME HUD
+======================================== */
+
+.game-hud {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+}
+
+.hud-item {
+    padding: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--surface);
+
+    text-align: center;
+}
+
+.hud-item span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.08em;
+}
+
+.hud-item strong {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 20px;
+}
+
+
+/* ========================================
+   GAME AREA
+======================================== */
+
+.game-area {
+    position: relative;
+
+    min-height: 330px;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(99,102,241,0.08),
+            transparent 60%
+        ),
+        var(--bg-soft);
+}
+
+.game-start-screen {
+    padding: 30px;
+
+    text-align: center;
+}
+
+.game-start-icon {
+    width: 70px;
+    height: 70px;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 16px;
+
+    border-radius: 22px;
+
+    background: var(--primary-soft);
+
+    font-size: 30px;
+
+    animation:
+        pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+}
+
+.game-start-screen h3 {
+    margin-bottom: 7px;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 22px;
+}
+
+.game-start-screen p {
+    max-width: 380px;
+
+    margin: 0 auto 20px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+.game-footer {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 14px;
+}
+
+
+/* ========================================
+   REACTION GAME
+======================================== */
+
+.reaction-target {
+    position: absolute;
+
+    width: 70px;
+    height: 70px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            white,
+            #22d3ee 18%,
+            #6366f1 65%,
+            #4f46e5
+        );
+
+    color: white;
+
+    box-shadow:
+        0 0 35px
+        rgba(34,211,238,0.55);
+
+    cursor: pointer;
+
+    animation:
+        targetPop 160ms ease;
+}
+
+@keyframes targetPop {
+
+    from {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* ========================================
+   MEMORY GAME
+======================================== */
+
+.memory-grid {
+    width:
+        min(
+            360px,
+            90%
+        );
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 8px;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+
+    border-radius: 12px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    color: transparent;
+
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease;
+}
+
+.memory-card:hover {
+    transform: translateY(-2px);
+}
+
+.memory-card.active {
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-2)
+        );
+
+    color: white;
+}
+
+
+/* ========================================
+   ACCURACY GAME
+======================================== */
+
+.accuracy-target {
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            white 0 8%,
+            #22d3ee 9% 25%,
+            #6366f1 26% 48%,
+            #0f172a 49% 100%
+        );
+
+    box-shadow:
+        0 0 25px
+        rgba(34,211,238,0.35);
+
+    cursor: pointer;
+
+    animation:
+        targetPop 160ms ease;
+}
+
+
+/* ========================================
+   LOGIC GAME
+======================================== */
+
+.logic-question {
+    width:
+        min(
+            560px,
+            92%
+        );
+
+    text-align: center;
+}
+
+.logic-question h3 {
+    margin-bottom: 20px;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 24px;
+}
+
+.logic-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+}
+
+.logic-option {
+    min-height: 54px;
+
+    padding: 10px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--surface);
+
+    color: var(--text);
+
+    font-weight: 700;
+
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background-color 180ms ease;
+}
+
+.logic-option:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--primary);
+
+    background: var(--primary-soft);
+}
+
+
+/* ========================================
+   SPEED GAME
+======================================== */
+
+.speed-container {
+    width:
+        min(
+            560px,
+            92%
+        );
+
+    text-align: center;
+}
+
+.speed-word {
+    margin-bottom: 20px;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        clamp(
+            38px,
+            8vw,
+            65px
+        );
+
+    font-weight: 800;
+}
+
+.speed-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+}
+
+.speed-option {
+    min-height: 55px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--surface);
+
+    color: var(--text);
+
+    font-weight: 700;
+
+    transition:
+        background 180ms ease,
+        border-color 180ms ease;
+}
+
+.speed-option:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+}
+
+
+/* ========================================
+   RESULTS
+======================================== */
+
+.results-content {
+    width:
+        min(
+            430px,
+            100%
+        );
+
+    text-align: center;
+}
+
+.results-icon {
+    width: 75px;
+    height: 75px;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 18px;
+
+    border-radius: 24px;
+
+    background: var(--primary-soft);
+
+    font-size: 32px;
+
+    animation:
+        resultPop 500ms ease;
+}
+
+@keyframes resultPop {
+
+    0% {
+        transform:
+            scale(0)
+            rotate(-15deg);
+    }
+
+    70% {
+        transform:
+            scale(1.12)
+            rotate(4deg);
+    }
+
+    100% {
+        transform:
+            scale(1)
+            rotate(0);
+    }
+}
+
+.results-content h2 {
+    margin-bottom: 5px;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 28px;
+}
+
+.results-content > p {
+    margin-bottom: 24px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+.results-score {
+    padding: 20px;
+
+    margin-bottom: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    background: var(--surface);
+}
+
+.results-score span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+}
+
+.results-score strong {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 48px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a78bfa,
+            #22d3ee
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+.results-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.results-stats > div {
+    padding: 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--surface);
+}
+
+.results-stats span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+}
+
+.results-stats strong {
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size: 19px;
+}
+
+.results-actions {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 8px;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.footer {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+
+    padding:
+        25px 20px 35px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+
+    text-align: center;
+}
+
+
+/* ========================================
+   MOBILE ONLY
+======================================== */
+
+.mobile-only {
+    display: none;
+}
+
+
+/* ========================================
+   LEVEL UP EFFECT
+======================================== */
+
+body.level-up::after {
+    content: "LEVEL UP!";
+
+    position: fixed;
+
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    pointer-events: none;
+
+    z-index: 99999;
+
+    color: white;
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        clamp(
+            40px,
+            10vw,
+            90px
+        );
+
+    font-weight: 900;
+
+    letter-spacing: -0.05em;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(139,92,246,0.35),
+            transparent 55%
+        );
+
+    animation:
+        levelUpFlash 700ms ease forwards;
+}
+
+@keyframes levelUpFlash {
+
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+}
+
+
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 900px) {
+
+    .main-content {
+        width:
+            min(
+                calc(100% - 28px),
+                760px
+            );
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+
+        text-align: center;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .core-container {
+        min-height: 320px;
+    }
+
+    .player-overview {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .game-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .features-section {
+        grid-template-columns: 1fr;
+    }
+
+    .statistics-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .achievements-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px) {
+
+    .topbar {
+        height: 64px;
+        padding: 0 14px;
+    }
+
+    .logo-text {
+        font-size: 17px;
+    }
+
+    .mobile-only {
+        display: grid;
+    }
+
+    .main-content {
+        width:
+            min(
+                calc(100% - 20px),
+                500px
+            );
+    }
+
+    .page {
+        padding: 38px 0;
+    }
+
+    .hero {
+        min-height: auto;
+        gap: 15px;
+    }
+
+    .hero h1 {
+        font-size:
+            clamp(
+                42px,
+                14vw,
+                60px
+            );
+    }
+
+    .hero-description {
+        font-size: 13px;
+    }
+
+    .hero-actions {
+        display: grid;
+
+        grid-template-columns: 1fr;
+
+        width: 100%;
+    }
+
+    .hero-actions button {
+        width: 100%;
+    }
+
+    .core-container {
+        min-height: 250px;
+    }
+
+    .skill-core {
+        width: 190px;
+        height: 190px;
+    }
+
+    .core-center {
+        width: 80px;
+        height: 80px;
+
+        border-radius: 23px;
+
+        font-size: 20px;
+    }
+
+    .player-overview {
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 8px;
+
+        margin-bottom: 50px;
+    }
+
+    .overview-card {
+        min-height: 75px;
+        padding: 12px;
+    }
+
+    .overview-icon {
+        width: 34px;
+        height: 34px;
+
+        font-size: 11px;
+    }
+
+    .overview-card strong {
+        font-size: 19px;
+    }
+
+    .game-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .game-card {
+        min-height: 220px;
+    }
+
+    .section-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 5px;
+    }
+
+    .statistics-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .performance-row {
+        grid-template-columns:
+            75px 1fr 35px;
+
+        gap: 7px;
+    }
+
+    .game-modal-content,
+    .results-content {
+        padding: 18px;
+
+        border-radius: 20px;
+    }
+
+    .game-area {
+        min-height: 300px;
+    }
+
+    .game-footer {
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .game-footer button {
+        width: 100%;
+    }
+
+    .logic-options,
+    .speed-options {
+        grid-template-columns: 1fr;
+    }
+
+    .results-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ========================================
+   SMALL MOBILE
+======================================== */
+
+@media (max-width: 380px) {
+
+    .player-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-actions {
+        gap: 4px;
+    }
+
+    .icon-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .game-hud {
+        gap: 5px;
+    }
+
+    .hud-item {
+        padding: 9px 5px;
+    }
+
+    .hud-item strong {
+        font-size: 17px;
+    }
+
+    .game-modal-content,
+    .results-content {
+        padding: 14px;
+    }
+}
+
+
+/* ========================================
+   REDUCED MOTION
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+    }
+}
